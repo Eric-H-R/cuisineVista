@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import Sidebar from './SideBar';
 import Topbar from './TopBar';
+import { Outlet } from 'react-router-dom';
 
 const Layout = ({children}) => {
   return (
@@ -20,6 +21,7 @@ const Layout = ({children}) => {
           }}
         >
           {children}
+           <Outlet />
         </Box>
       </Box>
     </Box>

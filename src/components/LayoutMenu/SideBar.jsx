@@ -12,16 +12,20 @@ import PeopleIcon from '@mui/icons-material/People';
 //import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const drawerWidth = 260;
 
 const Sidebar = () => {
 
   const location = useLocation();
+  const navigate = useNavigate();
+   const handleLogout = () => {
+      navigate('/'); 
+    };
 
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: "/" },
+    { text: 'Dashboard', icon: <DashboardIcon />, path: "/dashboard" },
     { text: 'Ordenes', icon: <ReceiptIcon />, path: "/ordenes"},
     { text: 'Mesas', icon: <TableBarIcon />, path: "/mesas" },
     { text: 'Menú', icon: <RestaurantMenuIcon />, path: "/menu"},
@@ -88,7 +92,8 @@ const Sidebar = () => {
                 </Avatar>
               </ListItemAvatar>
               <ListItemText primary="Admin" secondary="Administrador" />
-              <IconButton aria-label="LogOut" sx={{color:'white', p:2}}>
+              <IconButton aria-label="LogOut" sx={{color:'white', p:2}}
+              onClick={handleLogout}>
                     <LogoutIcon />
               </IconButton >
             </ListItem>

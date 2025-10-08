@@ -6,8 +6,17 @@ import { FormControlLabel } from '@mui/material'
 import { Checkbox } from '@mui/material'
 import { CardHeader } from '@mui/material'
 import { Button } from '@mui/material'
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+
+   const navigate = useNavigate();
+
+  const handleLogin = () => {
+    //Solo sirve para redirigir por el momento no se hizo validaciones o rutas protegidas amigo
+    navigate("/dashboard");
+  };
+
   return (
     <Card variant='outlined' sx={{ p: 4, width: 300, m: 'auto', mt: 5 }} color='secondary'>
     <CardHeader title="Iniciar Sesión" sx={{ textAlign: 'center', mb: 3 }} />
@@ -40,6 +49,7 @@ export default function Login() {
               type="submit"
               fullWidth
               variant="outlined"
+              onClick={handleLogin}
               >
               Sign up
             </Button>
