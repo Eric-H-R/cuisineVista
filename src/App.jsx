@@ -1,37 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import appLogo from '/favicon.svg'
-import PWABadge from './PWABadge.jsx'
-import './App.css'
+import Layout from './components/LayoutMenu/Layout';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Usuarios from './modules/usuarios/pages/Usuarios'
+import Dashboard from './modules/dashboard/pages/Dashboard';
+import Ordenes from './modules/ordenes/pages/Ordenes';
+import Pagos from './modules/pagos/pages/Pagos'
+import Sucursales from './modules/sucursales/pages/Sucursales';
+import Reservas from './modules/reservas/pages/Reservas';
+import Mesas from './modules/mesas/pages/Mesas';
+import Menus from './modules/menus/pages/Menus';
+import Insumos from './modules/insumos/pages/Insumos';
+import Configuracion from './modules/configuraciones/pages/Configuraciones';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={appLogo} className="logo" alt="cuisineReact logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>cuisineReact</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <PWABadge />
-    </>
-  )
-}
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/ordenes" element={<Ordenes />} />
+          <Route path='/mesas' element={<Mesas />} />
+          <Route path='/menu' element={<Menus/>} />
+          <Route path='/inventario' element={<Insumos/>} />
+          <Route path='/reservas'element={<Reservas />} />
+          <Route path="/pagos" element={<Pagos />}/>
+          <Route path='/sucursales' element={<Sucursales />} />
+          <Route path="/usuarios" element={<Usuarios />} />
+          <Route path="/configuracion" element={<Configuracion />} />
+        </Routes>
+      </Layout>
+    </Router>
+  );
+};
 
-export default App
+export default App;
