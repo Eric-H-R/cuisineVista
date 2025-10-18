@@ -3,33 +3,47 @@ import { Box } from '@mui/material';
 import Sidebar from './SideBar';
 import Topbar from './TopBar';
 import { Outlet } from 'react-router-dom';
+import { useState } from "react";
 
-const Layout = ({children}) => {
+const Layout = ({ children }) => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   return (
-     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      <Sidebar />
-      <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-        <Topbar />
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            backgroundColor: "#f5f5f5",
-            p: 3,
-            mt: 8,
-            overflowY: "auto",
-          }}
-        >
-          {children}
-           <Outlet />
-        </Box>
+    <Box sx={{ display: 'flex' }}>
+      {/* Sidebar (fijo + temporal) */}
+      <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
+
+      {/* Contenedor principal */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - 260px)` },
+          ml: { sm: '260px' },
+          mt: '64px', // altura del AppBar
+          backgroundColor: '#f5f5f5',
+          minHeight: '100vh',
+          overflowY: 'auto',
+        }}
+      >
+        {/* Barra superior */}
+        <Topbar handleDrawerToggle={handleDrawerToggle} />
+
+        {/* Contenido de los módulos */}
+        {children}
+        <Outlet />
       </Box>
     </Box>
   );
-}
-
-export default Layout;
+};
 
 Layout.propTypes = {
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
 };
+
+export default Layout;
