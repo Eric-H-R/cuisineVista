@@ -28,7 +28,7 @@ export default function Login() {
 
   const handleLogin = () => {
     //Solo sirve para redirigir por el momento no se hizo validaciones o rutas protegidas amigo
-    navigate("/dashboard");
+    navigate("/tiendas");
   };
 
   return (

@@ -11,13 +11,15 @@ import Menus from './modules/menus/pages/Menus';
 import Insumos from './modules/insumos/pages/Insumos';
 import Configuracion from './modules/configuraciones/pages/Configuraciones';
 import Login from './modules/auth/components/login/login';
+import Tiendas from './components/tiendas/pages/Tiendas';
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-     
+        <Route path="/tiendas" element={<Tiendas/>} />
+        
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/ordenes" element={<Ordenes />} />
