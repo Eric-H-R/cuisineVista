@@ -24,6 +24,7 @@ import StoreIcon from "@mui/icons-material/Store";
 import PeopleIcon from "@mui/icons-material/People";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
+import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 
@@ -46,11 +47,12 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
     { text: "Sucursales", icon: <StoreIcon />, path: "/sucursales" },
     { text: "Usuarios", icon: <PeopleIcon />, path: "/usuarios" },
     { text: "Configuración", icon: <SettingsIcon />, path: "/configuracion" },
+    { text: "Horarios", icon: <WorkHistoryIcon/>, path: "/horarios"}
   ];
 
   const drawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box sx={{ textAlign: "center", py: 2 }}>
+      <Box sx={{ textAlign: "center", py: 1 }}>
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           Cuisine
         </Typography>

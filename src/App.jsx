@@ -10,6 +10,7 @@ import Mesas from './modules/mesas/pages/Mesas';
 import Menus from './modules/menus/pages/Menus';
 import Insumos from './modules/insumos/pages/Insumos';
 import Configuracion from './modules/configuraciones/pages/Configuraciones';
+import Horarios from './modules/horarios/pages/Horarios'
 import Login from './modules/auth/components/login/login';
 import Tiendas from './components/tiendas/pages/Tiendas';
 
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/sucursales" element={<Sucursales />} />
           <Route path="/usuarios" element={<Usuarios />} />
           <Route path="/configuracion" element={<Configuracion />} />
+          <Route path='/horarios' element={<Horarios />} />
         </Route>
       </Routes>
     </Router>

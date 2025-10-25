@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
-const StatsCards = ({ cardsData }) => {
+const CardEstadisticas = ({ cardsData }) => {
   return (
     <Box
       sx={{
@@ -19,15 +19,14 @@ const StatsCards = ({ cardsData }) => {
       }}
     >
       {cardsData.map((card, index) => {
-        // Array de colores diferentes para cada número
         const numberColors = ['#2E7D32', '#1976D2', '#7B1FA2', '#D32F2F'];
         
         return (
           <Card key={index} sx={{ borderRadius: 2 }}>
-            <CardContent sx={{ height: '100%', textAlign: 'center' }}>
+            <CardContent sx={{ height: '100%', textAlign: 'center'}}>
               <Typography 
                 variant="h5" 
-                component="div" 
+                component="div"
                 sx={{ color: numberColors[index] }}
               >
                 {card.value}
@@ -47,7 +46,7 @@ const StatsCards = ({ cardsData }) => {
   );
 };
 
-StatsCards.propTypes = {
+CardEstadisticas.propTypes = {
   cardsData: PropTypes.arrayOf(
     PropTypes.shape({
       title: PropTypes.string.isRequired,
@@ -59,4 +58,4 @@ StatsCards.propTypes = {
   ).isRequired
 };
 
-export default StatsCards;
+export default CardEstadisticas;
