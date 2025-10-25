@@ -11,8 +11,10 @@ import AddIcon from '@mui/icons-material/Add';
 import CardEstadisticas from '../components/CardEstadisticas';
 import BarraBusqueda from '../components/BarraBusqueda'
 import CardAsignacion from '../components/CardAsignacion'
+import Scroll from '../../../hooks/Scroll'
 
 const Sucursales = () => {
+   Scroll()
     const statsData = [
     { title: 'Sucursales Activas', value: 3 },
     { title: 'Ingresos del Día', value: '$35.400' },
