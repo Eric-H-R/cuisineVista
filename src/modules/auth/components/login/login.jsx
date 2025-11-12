@@ -13,8 +13,57 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Box, Grid, FormControl, TextField,FormControlLabel,Checkbox,Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+import { getAuth, signInAnonymously } from 'firebase/auth';
+import { messaging } from '../../../../firebase';
+import { getToken, onMessage } from "firebase/messaging";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
+
+
 export default function Login() {
 
+/*
+  const loguearse = () => {
+    signInAnonymously(getAuth()).then(anonimo => console.log(anonimo))
+  }
+*/
+  const activarMensaje = async () => {
+    try {
+    const token = await getToken(messaging, {
+      vapidKey: "BJutNpqHy_LmFuRKDVlzMQ64egU83jTPv5ZFZfuxZr12oWyTGhUBSrlQZW65AnM7EFDid5tKo7kBl22mGHtoOLQ"
+    });
+
+    if (token) {
+      console.log("Tu token", token);
+      return token;
+    }
+      return null;
+    } catch (error) {
+      console.log("Error", error);
+      return null;
+    }
+  }
+  /*
+  React.useEffect(() => {
+    onMessage(messaging, message => {
+      console.log("tu mensaje: ", message)
+      toast.success(message.notification.title, {
+  position: "top-right",
+  autoClose: 5000,
+  hideProgressBar: true,
+  closeOnClick: false,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+  icon: <span style={{ fontSize: "1.2em" }}>🚀</span>, // JSX
+});
+    })
+  }, [])
+*/
+
+  const [usuario, setUsuario] = React.useState('');
+  const [password, setPassword] = React.useState(''); 
   const [showPassword, setShowPassword] = React.useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => {
@@ -26,10 +75,16 @@ export default function Login() {
   };
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+
+  const handleLogin = async () => {
     //Solo sirve para redirigir por el momento no se hizo validaciones o rutas protegidas amigo
     navigate("/tiendas");
+    
+    const token = await activarMensaje();
+    console.table({token:token, usuario: usuario, contrasena: password})
+ 
   };
+
 
   return (
  <Box sx={{
@@ -113,6 +168,8 @@ export default function Login() {
                   required
                   fullWidth
                   multiline
+                  value={usuario}
+                  onChange={(e) => setUsuario(e.target.value)}
                   placeholder="Usuario"
                   InputProps={{
                     endAdornment: (
@@ -200,6 +257,8 @@ export default function Login() {
           <Input
             id="standard-adornment-password"
             type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
@@ -248,8 +307,10 @@ export default function Login() {
         >
           Sign up
         </Button>
+        
       </Box>
     </Grid>
+   
   </Grid>
 </Box>
   );

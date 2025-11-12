@@ -34,5 +34,17 @@ export default [
         { allowConstantExport: true },
       ],
     },
+  
+    files: [
+      '**/firebase-messaging-sw.js',
+      '**/*-sw.js', 
+    ],
+    languageOptions: {
+      globals: {
+        ...globals.serviceworker, 
+        firebase: 'readonly',    
+        importScripts: 'readonly', 
+      },
+    },
   },
 ]

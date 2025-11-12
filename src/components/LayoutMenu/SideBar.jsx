@@ -46,8 +46,9 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
     { text: "Pagos", icon: <PaymentIcon />, path: "/pagos" },
     { text: "Sucursales", icon: <StoreIcon />, path: "/sucursales" },
     { text: "Usuarios", icon: <PeopleIcon />, path: "/usuarios" },
-    { text: "Configuración", icon: <SettingsIcon />, path: "/configuracion" },
-    { text: "Horarios", icon: <WorkHistoryIcon/>, path: "/horarios"}
+     { text: "Horarios", icon: <WorkHistoryIcon/>, path: "/horarios"},
+    { text: "Configuración", icon: <SettingsIcon />, path: "/configuracion" }
+   
   ];
 
   const drawerContent = (
