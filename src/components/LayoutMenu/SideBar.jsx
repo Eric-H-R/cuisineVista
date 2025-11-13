@@ -27,12 +27,15 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import { useAuth } from '../../context/AuthContext'; 
 
 const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
+  const {logout} = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    logout()
     navigate("/");
   };
 
@@ -46,8 +49,9 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
     { text: "Pagos", icon: <PaymentIcon />, path: "/pagos" },
     { text: "Sucursales", icon: <StoreIcon />, path: "/sucursales" },
     { text: "Usuarios", icon: <PeopleIcon />, path: "/usuarios" },
-    { text: "Configuración", icon: <SettingsIcon />, path: "/configuracion" },
-    { text: "Horarios", icon: <WorkHistoryIcon/>, path: "/horarios"}
+     { text: "Horarios", icon: <WorkHistoryIcon/>, path: "/horarios"},
+    { text: "Configuración", icon: <SettingsIcon />, path: "/configuracion" }
+   
   ];
 
   const drawerContent = (

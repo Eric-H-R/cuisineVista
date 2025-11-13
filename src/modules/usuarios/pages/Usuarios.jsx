@@ -1,4 +1,4 @@
-//import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box, Typography, Button,Container
 } from '@mui/material';
@@ -7,8 +7,103 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import CardEstadisticas from '../components/CardEstadisticas';
 import BarraBusqueda from '../components/BarraBusqueda'
 import UserTabs from '../components/UserTabs'
+import FormularioUsuario from '../components/FormularioUsuario'
+import Scroll from '../../../hooks/Scroll'
+//API
+import rolesService from '../services/roles.service'
+import sucursalesService from '../../sucursales/services/sucursales.service'
+ 
 
 const Sucursales = () => {
+  Scroll()
+
+  const [openRolesModal, setOpenRolesModal] = useState(false);
+  const [openUserModal, setOpenUserModal] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
+  const [roless, setRoles] = useState([]);
+  const [sucursales, setSucursales] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+
+   // Cargar datos iniciales
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      
+      const rolesResponse = await rolesService.getAll();
+      const sucursalesResponse = await sucursalesService.getAll();
+      setRoles(Array.isArray(rolesResponse?.data?.data) ? rolesResponse.data.data : []);
+      setSucursales(Array.isArray(sucursalesResponse?.data?.data) ? sucursalesResponse.data.data : []);
+      
+      
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+      setRoles([]);
+      setSucursales([]);
+      showSnackbar('Error cargando datos iniciales', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSucursales = async () => {
+    const response =  await rolesService.getAll();
+    console.log(response.data.data)
+  };
+
+   const handleOpenUserModal = (user = null) => {
+    setUserToEdit(user);
+    setOpenUserModal(true);
+  };
+
+  const handleCloseUserModal = () => {
+    setUserToEdit(null);
+    setOpenUserModal(false);
+  };
+
+  const handleOpenRolesModal = () => {
+    setOpenRolesModal(true);
+  };
+
+  const handleCloseRolesModal = () => {
+    setOpenRolesModal(false);
+  };
+
+  const handleSaveUser = async (userData) => {
+    try {
+      setLoading(true);
+      
+      // Aquí llamas a tu servicio de usuarios
+      console.log('Guardando usuario:', userData);
+      
+      showSnackbar(
+        userToEdit ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente', 
+        'success'
+      );
+      
+      handleCloseUserModal();
+      
+    } catch (error) {
+      console.error('Error saving user:', error);
+      showSnackbar(`Error: ${error.message}`, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const showSnackbar = (message, severity) => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
 const cardsData = [
     { title: 'Usuarios Activos', value: 3 },
     { title: 'Roles Disponibles', value: 7 },
@@ -115,6 +210,7 @@ return (
             <Button
               variant="outlined"
               size="large"
+              onClick={handleSucursales}
               startIcon={<AdminPanelSettingsIcon/>}
               sx={{
                     color: '#333333',
@@ -132,6 +228,7 @@ return (
               variant="contained"
               size="large"
               startIcon={<AddIcon/>}
+              onClick={() => handleOpenUserModal()}
                sx={{
                     backgroundColor: '#588157',
                     color: 'white',
@@ -145,6 +242,15 @@ return (
           </Box>
         </Box>
 
+        <FormularioUsuario
+          open={openUserModal}
+          onClose={handleCloseUserModal}
+          onSave={handleSaveUser}
+          userToEdit={userToEdit}
+          roles={roless}
+          sucursales={sucursales}
+          loading={loading}
+        />
         <CardEstadisticas cardsData={cardsData}/>
 
         <BarraBusqueda />
