@@ -27,12 +27,15 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import { useAuth } from '../../context/AuthContext'; 
 
 const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
+  const {logout} = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    logout()
     navigate("/");
   };
 
