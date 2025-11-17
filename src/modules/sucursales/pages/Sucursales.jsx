@@ -1,4 +1,4 @@
-//import React from 'react';
+import { useState, useEffect, useMemo  } from 'react'
 import {
   Box,
   Typography,
@@ -11,119 +11,124 @@ import AddIcon from '@mui/icons-material/Add';
 import CardEstadisticas from '../components/CardEstadisticas';
 import BarraBusqueda from '../components/BarraBusqueda'
 import CardAsignacion from '../components/CardAsignacion'
-import Scroll from '../../../hooks/Scroll'
+import LoadingComponent from '../../../components/Loadings/LoadingComponent';
+import FormularioSucursales from '../components/FormularioSucursales';
+
+//TOAST: ALERTAS
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'
+//API 
+import sucursalesService from '../services/sucursales.service';
 
 const Sucursales = () => {
-   Scroll()
-    const statsData = [
+  const [loading, setLoading] = useState(true);
+  const [sucursales, setSucursales] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [sucursalToEdit, setSucursalToEdit] = useState(null);
+
+  // Estados para filtros
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sucursalFilter, setSucursalFilter] = useState('');
+
+   // Cargar datos iniciales
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    try {
+
+      const {data} = await sucursalesService.getAll();
+      const response = data;
+      console.log('Datos de sucursales cargados:', response.data);
+      setSucursales(response.data);
+
+    } catch (error) {
+      console.error('Error al cargar datos de sucursales:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNewBranch = (sucursal = null) => {
+    setSucursalToEdit(sucursal);
+    setOpenModal(true);
+  };
+
+  const handleSaveSucursal = async (sucursalData) => {
+    try {
+      let response;
+      if (sucursalToEdit) {
+        await sucursalesService.update(sucursalToEdit.id_sucursal, sucursalData);
+        toast.success(`Sucursal ${sucursalToEdit.nombre} actualizada`);
+      } else {
+        const { data } = await sucursalesService.create(sucursalData);
+        response = data;
+        toast.success(`Sucursal ${response.data.nombre} creada`);
+      }
+      setOpenModal(false);
+      loadInitialData();
+    } catch (error) {
+      toast.error('Error guardando sucursal');
+    }
+  };
+
+    // Filtrar sucursales
+  const filteredSucursales = sucursales.filter(sucursal => {
+    // Filtro por término de búsqueda
+    const matchesSearch = searchTerm === '' || 
+      sucursal.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sucursal.direccion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sucursal.telefono.includes(searchTerm);
+
+    // Filtro por sucursal (si estás en otro contexto)
+    const matchesSucursal = sucursalFilter === '' || 
+      sucursal.id_sucursal.toString() === sucursalFilter.toString();
+
+    return matchesSearch && matchesSucursal;
+  });
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
+
+  const handleSucursalFilter = (sucursalId) => {
+    setSucursalFilter(sucursalId);
+  };
+
+  const handleDesactivate = async (sucursalId) => {
+    try {
+      await sucursalesService.delete(sucursalId);
+      toast.success('Sucursal desactivada');
+      loadInitialData();
+    } catch (error) {
+      toast.error('Error desactivando sucursal');
+      console.error('Error desactivando sucursal:', error);
+    }
+  };
+
+  const statsData = [
     { title: 'Sucursales Activas', value: 3 },
     { title: 'Ingresos del Día', value: '$35.400' },
     { title: 'Pedidos del Día', value: 201 },
     { title: 'Empleados Activos', value: 30 }
   ];
-
-  const branches = [
-    {
-      id: 1,
-      name: 'Sucursal Principal',
-      code: 'SUC-001',
-      phone: '555-0100',
-      email: 'principal@cuisine.com',
-      status: 'Active',
-      tables: { current: 23, total: 25 },
-      employees: 12,
-      ordersToday: 89,
-      incomeToday: 15420,
-      averageTicket: 173,
-      assignments: [
-        {
-          id: 1,
-          employeeName: 'Ana García',
-          role: 'Gerente',
-          shift: 'Matutino',
-          schedule: '8:00 - 16:00'
-        },
-        {
-          id: 2,
-          employeeName: 'Carlos López',
-          role: 'Supervisor',
-          shift: 'Vespertino', 
-          schedule: '14:00 - 22:00'
-        },
-         {
-          id: 3,
-          employeeName: 'Carlos López',
-          role: 'Supervisor',
-          shift: 'Vespertino', 
-          schedule: '14:00 - 22:00'
-        },
-         {
-          id: 4,
-          employeeName: 'Carlos López',
-          role: 'Supervisor',
-          shift: 'Vespertino', 
-          schedule: '14:00 - 22:00'
-        },
-         {
-          id: 5,
-          employeeName: 'Carlos López',
-          role: 'Supervisor',
-          shift: 'Vespertino', 
-          schedule: '14:00 - 22:00'
-        },
-      ]
-    },
-    {
-      id: 2,
-      name: 'Sucursal Norte',
-      code: 'SUC-002',
-      phone: '555-0200',
-      email: 'norte@cuisine.com',
-      status: 'Active',
-      tables: { current: 18, total: 20 },
-      employees: 8,
-      ordersToday: 67,
-      incomeToday: 11200,
-      averageTicket: 167,
-      assignments: [
-        {
-          id: 3,
-          employeeName: 'María Rodríguez',
-          role: 'Cajera',
-          shift: 'Matutino',
-          schedule: '7:00 - 15:00'
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: 'Sucursal Sur',
-      code: 'SUC-003',
-      phone: '555-0300',
-      email: 'sur@cuisine.com',
-      status: 'Inactive',
-      tables: { current: 0, total: 15 },
-      employees: 0,
-      ordersToday: 0,
-      incomeToday: 0,
-      averageTicket: 0,
-      assignments: []
-    }
-  ];
-
-  const handleNewBranch = () => {
-    console.log('Abrir modal de nueva sucursal');
-  };
-
-  const handleAssign = (branch) => {
-    console.log('Asignar personal a:', branch.name);
-  };
-
-  const handleUnassign = (assignment) => {
-    console.log('Desasignar:', assignment.employeeName);
-  };
-
+  
   return (
+
+    <>
+     <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+    />
     <Container maxWidth="xl" sx={{ mt: 0 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
@@ -140,7 +145,7 @@ const Sucursales = () => {
           variant="contained"
           size="large"
           startIcon={<AddIcon />}
-          onClick={handleNewBranch}
+          onClick={() => handleNewBranch()}
           sx={{
             backgroundColor: '#588157',
             color: 'white',
@@ -154,26 +159,63 @@ const Sucursales = () => {
           NUEVA SUCURSAL
         </Button>
       </Box>
+      {/* Modal de formulario de sucursal */}
+      <FormularioSucursales
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onSave={handleSaveSucursal}
+        sucursalToEdit={sucursalToEdit}
+        loading={loading}
+      />
 
       {/* Cards de estadísticas */}
       <CardEstadisticas cardsData={statsData} />
 
-      {/* Barra de búsqueda */}
-      <BarraBusqueda placeholder="Buscar sucursales..." />
+      {/* Barra de búsqueda con filtro */}
+      <BarraBusqueda 
+        placeholder="Buscar sucursales por nombre, dirección o teléfono..."
+        onSearch={handleSearch}
+        onSucursalChange={handleSucursalFilter}
+        value={searchTerm}
+        sucursalValue={sucursalFilter}
+        sucursales={sucursales}
+      />
 
-      {/* Grid de Sucursales con asignaciones */}
-      <Grid container spacing={3}>
-        {branches.map((branch) => (
-          <Grid size={{ xs: 12, lg: 6 }} key={branch.id}>
-            <CardAsignacion 
-              branch={branch} 
-              onAssign={handleAssign}
-              onUnassign={handleUnassign}
-            />
+      {/* Grid de Sucursales */}
+      {loading ? (
+        <LoadingComponent message="Cargando sucursales..." />
+      ) : (
+        <Grid container spacing={3}>
+          {filteredSucursales.map((branch) => {  
+            return (
+              <Grid size={{ xs: 12, lg: 6 }} key={branch.id_sucursal}>
+                <CardAsignacion 
+                branch={branch}
+                onEdit={handleNewBranch}
+                onDesactivate={handleDesactivate}
+              />
           </Grid>
-        ))}
+        );
+      })}
       </Grid>
+      )}
+
+      {/* Mensaje cuando no hay resultados */}
+      {!loading && filteredSucursales.length === 0 && (
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            No se encontraron sucursales
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            {sucursales.length === 0 
+              ? 'No hay sucursales registradas. Crea la primera sucursal.' 
+              : 'Intenta con otros términos de búsqueda o filtros.'
+            }
+          </Typography>
+        </Box>
+      )}
     </Container>
+    </>
   );
 }
 

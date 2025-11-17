@@ -18,7 +18,7 @@ const app = firebase.initializeApp(firebaseConfig);
 
 // Inicializa Messaging
 const messaging = firebase.messaging(app);
-
+messaging.usePublicVapidKey("BJutNpqHy_LmFuRKDVlzMQ64egU83jTPv5ZFZfuxZr12oWyTGhUBSrlQZW65AnM7EFDid5tKo7kBl22mGHtoOLQ");
 // Escucha mensajes en background
 messaging.onBackgroundMessage(payload => {
   console.log("Mensaje recibido en ausencia:", payload);

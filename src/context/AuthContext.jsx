@@ -1,33 +1,46 @@
-// src/context/AuthContext.jsx
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+  const [sucursal, setSucursal] = useState( localStorage.getItem("sucursalId") || null);
 
-  // Cuando haya token, lo sincroniza con el estado
-  useEffect(() => {
-    if (token) {
-      setUser({ name: "Usuario autenticado" });
-    }
-  }, [token]);
-
-  const login = (tokenValue) => {
+  // Login completo
+  const login = (tokenValue, userData) => {
     localStorage.setItem("token", tokenValue);
+    localStorage.setItem("user", JSON.stringify(userData));
+
     setToken(tokenValue);
-    setUser({ name: "Usuario autenticado" });
+    setUser(userData);
   };
 
+  // Guardar sucursal seleccionada
+  const seleccionarSucursal = (idSucursal) => {
+    localStorage.setItem("sucursalId", idSucursal);
+    setSucursal(idSucursal);
+  };
+
+  // Logout
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
     setToken(null);
     setUser(null);
+    setSucursal(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        user,
+        sucursal,
+        login,
+        logout,
+        seleccionarSucursal,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

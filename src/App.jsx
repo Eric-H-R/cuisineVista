@@ -17,6 +17,7 @@ import Sucursales from "./modules/sucursales/pages/Sucursales";
 import Usuarios from "./modules/usuarios/pages/Usuarios";
 import Horarios from "./modules/horarios/pages/Horarios";
 import Configuracion from "./modules/configuraciones/pages/Configuraciones";
+import Recetas from "./modules/recetas/pages/Recetas";
 
 const App = () => {
   return (
@@ -33,14 +34,16 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/ordenes" element={<Ordenes />} />
               <Route path="/mesas" element={<Mesas />} />
-              <Route path="/menu" element={<Menus />} />
-              <Route path="/inventario" element={<Insumos />} />
+              <Route path="/productos-recetas-costos" element={<Menus />} />
+              <Route path="/insumos" element={<Insumos />} />
               <Route path="/reservas" element={<Reservas />} />
               <Route path="/pagos" element={<Pagos />} />
               <Route path="/sucursales" element={<Sucursales />} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/horarios" element={<Horarios />} />
               <Route path="/configuracion" element={<Configuracion />} />
+              <Route path="/cuenta" element={<Pagos />} />
+            
             </Route>
           </Route>
         </Routes>

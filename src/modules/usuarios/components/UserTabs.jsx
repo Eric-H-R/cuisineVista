@@ -10,7 +10,8 @@ import CardRoles from './CardRoles';
 import CardClientes from './CardClinetes';
 import PropTypes from 'prop-types';
 
-const UserTabs = ({ users, roles, clientes }) => {
+const UserTabs = ({ users, roles, clientes, actions }) => {
+  const { onDesactivate, onEdit, onEditRole } = actions;
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -20,7 +21,7 @@ const UserTabs = ({ users, roles, clientes }) => {
   const tabsData = [
     { label: 'Usuarios', count: users.length },
     { label: 'Roles', count: roles.length },
-    { label: 'Clientes', count: 3 }
+    { label: 'Clientes', count: clientes.length }
   ];
 
   return (
@@ -82,7 +83,7 @@ const UserTabs = ({ users, roles, clientes }) => {
           <Grid container spacing={3}>
             {users.map((user) => (
               <Grid size={{xs:12, md:6, lg:4}}  key={user.id}>
-                <CardUsuarios user={user} />
+                <CardUsuarios user={user} onDesactivate={onDesactivate} onEdit={onEdit} />
               </Grid>
             ))}
           </Grid>
@@ -91,8 +92,8 @@ const UserTabs = ({ users, roles, clientes }) => {
         {value === 1 && ( // Tab de Roles
            <Grid container spacing={3}>
             {roles.map((role) => (
-              <Grid size={{xs:12, md:6, lg:6}}   key={role.id}>
-                <CardRoles role={role} />
+              <Grid size={{xs:12, md:6, lg:6}} key={role.id_rol}>
+                <CardRoles role={role} onEdit={onEditRole} />
               </Grid>
             ))}
           </Grid>

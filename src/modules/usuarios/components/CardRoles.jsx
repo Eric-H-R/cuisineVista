@@ -13,7 +13,11 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PeopleIcon from '@mui/icons-material/People';
 import PropTypes from 'prop-types';
 
-const CardRoles = ({ role }) => {
+const CardRoles = ({ role, onEdit }) => {
+
+  const handleEditClick = () => {
+    onEdit(role);
+  };
   return (
     <Card sx={{ 
       borderRadius: 2, 
@@ -29,21 +33,21 @@ const CardRoles = ({ role }) => {
             <AdminPanelSettingsIcon sx={{ mr: 1, color: '#588157' }} />
             <Box>
               <Typography variant="h6" component="h3" fontWeight="bold" color="#333333">
-                {role.name}
+                {role.nombre}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
                 <PeopleIcon sx={{ fontSize: 16, mr: 0.5, color: '#57300D' }} />
                 <Typography variant="body2" color="#57300D">
-                  {role.userCount} usuario{role.userCount !== 1 ? 's' : ''}
+                  {role.usuarios_asignados} usuario{role.usuarios_asignados !== 1 ? 's' : ''}
                 </Typography>
               </Box>
             </Box>
           </Box>
           <Chip 
-            label={role.type}
+            label={role.nombre}
             size="small"
             sx={{
-              backgroundColor: role.type === 'Administrador' ? '#588157' : '#A3B18A',
+              backgroundColor: role.nombre === 'Administrador' ? '#588157' : '#A3B18A',
               color: 'white',
               fontWeight: 'bold'
             }}
@@ -52,7 +56,7 @@ const CardRoles = ({ role }) => {
 
         {/* Descripción */}
         <Typography variant="body2" color="#333333" sx={{ mb: 2 }}>
-          {role.description}
+          {role.descripcion ? role.descripcion : 'Sin descripción disponible.'}
         </Typography>
 
         <Divider sx={{ my: 2, borderColor: '#E0E0E0' }} />
@@ -63,10 +67,10 @@ const CardRoles = ({ role }) => {
             Módulos con acceso:
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {role.modules.map((module, index) => (
+            {role.modulos.map(m => (
               <Chip 
-                key={index}
-                label={module}
+                key={m.id_modulo}
+                label={m.nombre}
                 size="small"
                 sx={{
                   backgroundColor: '#EDE0D4',
@@ -100,6 +104,7 @@ const CardRoles = ({ role }) => {
           <Button 
             variant="contained" 
             startIcon={<EditIcon />}
+            onClick={handleEditClick}
             size="small"
             sx={{
               backgroundColor: '#57300D',
