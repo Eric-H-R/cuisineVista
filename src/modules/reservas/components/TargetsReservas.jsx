@@ -1,11 +1,11 @@
 import { Grid, Typography, Card, CardContent } from '@mui/material';
 import PropTypes from 'prop-types';
 
-const CardDashboard = ({ statsData }) => {
-  return (
+const CardReservas = ({ reservasData }) => {
+     return (
 
     <Grid container item  spacing={2} sx={{ mb: 4 }}>
-      {statsData.map((card, index) => {
+      {reservasData.map((card, index) => {
         const numberColors = ['#2E7D32', '#1976D2', '#7B1FA2', '#D32F2F'];
         return (
           <Grid item size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
@@ -35,16 +35,16 @@ const CardDashboard = ({ statsData }) => {
   );
 };
 
-CardDashboard.propTypes = {
-  statsData: PropTypes.arrayOf(
+CardReservas.propTypes = {
+  reservasData: PropTypes.arrayOf(
     PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        value: PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.number
-        ]).isRequired
+      title: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+      ]).isRequired
     })
   ).isRequired
 };
-        
-export default CardDashboard;
+
+export default CardReservas;
