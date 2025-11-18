@@ -17,8 +17,8 @@ const TabsInvetario = ({ stocks, movements, suppliers }) => {
   };
 
   const tabsData = [
-    { label: 'Stock', count: stocks.length },
-    { label: 'Movimientos', count: movements.length },
+   /* { label: 'Stock', count: stocks.length },
+    { label: 'Movimientos', count: movements.length },*/
     { label: 'Proveedores', count: suppliers.length }
   ];
 
@@ -75,9 +75,9 @@ const TabsInvetario = ({ stocks, movements, suppliers }) => {
         </Box>
       </Box>
 
-      {/* Contenido del Tab seleccionado */}
-      <Box>
-        {value === 0 && ( // Tab de Stock - Cards que cubren todo el ancho
+      {/* Contenido del Tab seleccionado
+
+      {value === 0 && ( // Tab de Stock - Cards que cubren todo el ancho
           <Box>
             {stocks.map((stock) => (
               <CardStock key={stock.id} stock={stock} />
@@ -92,11 +92,17 @@ const TabsInvetario = ({ stocks, movements, suppliers }) => {
             ))}
           </Box>
         )}
+      
+      
+      */}
+      <Box>
         
-        {value === 2 && ( // Tab de Proveedores - Cards que cubren todo el ancho
+        
+        
+        {value === 0 && ( // Tab de Proveedores 
           <Box>
-            {suppliers.map((supplier) => (
-              <CardProveedores key={supplier.id} supplier={supplier} />
+            {suppliers.map((proveedor) => ( 
+              <CardProveedores key={proveedor.id_proveedor} proveedor={proveedor} />
             ))}
           </Box>
         )}
@@ -105,10 +111,6 @@ const TabsInvetario = ({ stocks, movements, suppliers }) => {
   );
 };
 
-TabsInvetario.propTypes = {
-  stocks: PropTypes.array.isRequired,
-  movements: PropTypes.array.isRequired,
-  suppliers: PropTypes.array.isRequired
-};
+
 
 export default TabsInvetario;

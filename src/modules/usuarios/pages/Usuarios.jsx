@@ -53,7 +53,7 @@ const Sucursales = () => {
 
   const handleSucursales = async () => {
     const response =  await rolesService.getAll();
-    console.log(response.data.data)
+    console.log(response)
   };
 
    const handleOpenUserModal = (user = null) => {
