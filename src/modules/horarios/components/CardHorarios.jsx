@@ -19,83 +19,103 @@ import {
   Schedule,
   People,
   AccessTime,
-  Code
+  List as ListIcon,
+  Visibility
 } from '@mui/icons-material';
 import colors, { withAlpha } from '../../../theme/colores';
+import AsignarHorarioUsuario from './AsignarHorarioUsuario';
+import CardUsuariosAsignados from '../components/CardUsuariosAsignados';
+import ConfirmDialog from '../../../components/Common/ConfirmDialog';
+import LoadingComponent from '../../../components/Loadings/LoadingComponent';
 
 const CardHorario = ({ 
   horario, 
   onEdit, 
   onDesactivar,
   onAsignarUsuario,
-  onGestionarDetalles 
+  onGestionarDetalles,
+  onAsignacionExitosa
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [asignacionOpen, setAsignacionOpen] = useState(false);
+  const [modalUsuarioAsignadoOpen, setModalUsuarioAsignadoOpen] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => { setAnchorEl(null);};
+  const handleClick = (event) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+  const handleEdit = () => { onEdit(); handleClose(); };
+  const handleDesactivar = () => { onDesactivar(); handleClose(); };
+  const handleAbrirAsignacion = () => { setAsignacionOpen(true); handleClose(); };
+  const handleCerrarAsignacion = () => setAsignacionOpen(false);
+  const handleAsignacionExitosa = () => {
+    setAsignacionOpen(false);
+    if (onAsignarUsuario) onAsignarUsuario();
+    if (onAsignacionExitosa) onAsignacionExitosa();
   };
+  const handleGestionarDetalles = () => { if (onGestionarDetalles) onGestionarDetalles(); handleClose(); };
+  const handleVerUsuarios = () => setModalUsuarioAsignadoOpen(true);
+  const handleCloseModal = () => setModalUsuarioAsignadoOpen(false);
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  
 
-  const handleEdit = () => {
-    onEdit();
-    handleClose();
-  };
+const handleConfirmDesactivar = async () => {
+  setOpenConfirm(false);
+  setLoading(true);
+  const MIN_LOADING_TIME = 500; // ⏱️ medio segundo recomendado
+  const startTime = Date.now();
 
-  const handleDesactivar = () => {
-    onDesactivar();
-    handleClose();
-  };
+  try {
+    await onDesactivar(); 
+  } catch (err) {
+    console.error(err);
+  } finally {
+    const elapsed = Date.now() - startTime;
+    const remaining = MIN_LOADING_TIME - elapsed;
 
-  const handleAsignarUsuario = () => {
-    if (onAsignarUsuario) {
-      onAsignarUsuario();
+    if (remaining > 0) {
+      setTimeout(() => setLoading(false), remaining);
+    } else {
+      setLoading(false);
     }
-    handleClose();
-  };
-
-  const handleGestionarDetalles = () => {
-    if (onGestionarDetalles) {
-      onGestionarDetalles();
-    }
-    handleClose();
-  };
+  }
+};
 
   return (
-    <Card 
-      elevation={2}
+    <Card
+      elevation={3}
       sx={{
-        borderRadius: 3,
-        border: `1px solid ${withAlpha(colors.secondary.main, '20')}`,
-        transition: 'all 0.3s ease',
+        borderRadius: 4,
+        border: `1px solid ${withAlpha(colors.secondary.main, '18')}`,
+        backgroundColor: colors.background.default,
+        transition: '0.3s ease',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 8px 25px rgba(88, 129, 87, 0.15)',
+          transform: 'translateY(-6px)',
+          boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
           borderColor: colors.secondary.main
         }
       }}
     >
       <CardContent sx={{ p: 3, pb: 2 }}>
-        {/* Header */}
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Schedule sx={{ color: colors.primary.main }} />
-            <Typography variant="h6" component="h2" fontWeight="600" sx={{ color: colors.primary.main }}>
+            <Typography variant="h6" fontWeight="700" sx={{ color: colors.primary.main }}>
               {horario.nombre}
             </Typography>
           </Box>
-          
-          <IconButton
+
+        <IconButton
             size="small"
             onClick={handleClick}
             sx={{
               color: colors.text.secondary,
+              borderRadius: 2,
               '&:hover': {
-                backgroundColor: withAlpha(colors.primary.main, '10')
+                backgroundColor: withAlpha(colors.primary.main, '12')
               }
             }}
           >
@@ -103,8 +123,7 @@ const CardHorario = ({
           </IconButton>
         </Box>
 
-        {/* Clave y Estado */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Chip
             label={horario.clave}
             size="small"
@@ -112,23 +131,28 @@ const CardHorario = ({
             sx={{
               borderColor: colors.primary.main,
               color: colors.primary.main,
-              fontWeight: '500'
+              fontWeight: 600,
+              borderRadius: 2
             }}
           />
           <Chip
             label={horario.estatus || 'Activo'}
             size="small"
-            color={horario.estatus === 'Inactivo' ? 'default' : 'success'}
             variant="filled"
+            color={horario.estatus === 'Inactivo' ? 'default' : 'success'}
+            sx={{
+              fontWeight: 600,
+              borderRadius: 2
+            }}
           />
         </Box>
 
-        {/* Descripción */}
-        <Typography 
-          variant="body2" 
-          color="text.secondary"
-          sx={{ 
+        <Typography
+          variant="body2"
+          color={colors.text.secondary}
+          sx={{
             mb: 2,
+            lineHeight: 1.45,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -138,87 +162,117 @@ const CardHorario = ({
           {horario.descripcion}
         </Typography>
 
-        {/* Información de Detalles */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <AccessTime fontSize="small" sx={{ color: colors.text.secondary }} />
-            <Typography variant="caption" color="text.secondary">
+            <AccessTime fontSize="small" sx={{ color: colors.accent.main }} />
+            <Typography variant="caption" color={colors.accent.main}>
               Días configurados: {horario.detalles?.length || 0}
             </Typography>
           </Box>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <People fontSize="small" sx={{ color: colors.text.secondary }} />
-            <Typography variant="caption" color="text.secondary">
+            <People fontSize="small" sx={{ color: colors.accent.main}} />
+            <Typography variant="caption" color={colors.accent.main}>
               Usuarios asignados: {horario.usuarios_asignados || 0}
             </Typography>
           </Box>
         </Box>
+
       </CardContent>
 
       <Divider sx={{ borderColor: colors.border.light }} />
 
-      <CardActions sx={{ p: 2, pt: 1.5 }}>
+      <CardActions sx={{ p: 2, pt: 1.5, justifyContent: 'space-between' }}>
         <Button
           size="small"
-          startIcon={<Code />}
+          startIcon={<ListIcon />}
           onClick={handleGestionarDetalles}
           sx={{
             color: colors.primary.main,
-            fontWeight: '500'
+            fontWeight: 600,
+            textTransform: 'none',
+            '&:hover': { opacity: 0.85 }
           }}
         >
           Gestionar Detalles
         </Button>
-        
+
         <Button
           size="small"
           startIcon={<People />}
-          onClick={handleAsignarUsuario}
+          onClick={handleAbrirAsignacion}
           sx={{
             color: colors.accent.main,
-            fontWeight: '500'
+            fontWeight: 600,
+            textTransform: 'none',
+            '&:hover': { opacity: 0.85 }
           }}
         >
-          Asignar
+          Asignar Usuarios
         </Button>
       </CardActions>
 
-      {/* Menú de opciones */}
       <Menu
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         PaperProps={{
           sx: {
-            borderRadius: 2,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            borderRadius: 3,
+            boxShadow: '0 6px 22px rgba(0,0,0,0.12)',
             border: `1px solid ${colors.border.light}`
           }
         }}
       >
-        <MenuItem onClick={handleEdit} sx={{ py: 1 }}>
+        <MenuItem onClick={handleEdit} sx={{ py: 1.2 }}>
           <Edit fontSize="small" sx={{ mr: 1, color: colors.primary.main }} />
           Editar Horario
         </MenuItem>
-        
-        <MenuItem onClick={handleGestionarDetalles} sx={{ py: 1 }}>
-          <Schedule fontSize="small" sx={{ mr: 1, color: colors.primary.main }} />
-          Gestionar Detalles
+
+        <MenuItem onClick={handleGestionarDetalles} sx={{ py: 1.2 }}>
+          <Visibility fontSize="small" sx={{ mr: 1, color: colors.primary.main }} />
+          Ver Detalles
         </MenuItem>
-        
-        <MenuItem onClick={handleAsignarUsuario} sx={{ py: 1 }}>
+
+        <MenuItem onClick={handleVerUsuarios} sx={{ py: 1.2 }}>
           <People fontSize="small" sx={{ mr: 1, color: colors.accent.main }} />
-          Asignar a Usuario
+          Usuarios Asignados
         </MenuItem>
-        
+
         <Divider />
-        
-        <MenuItem onClick={handleDesactivar} sx={{ py: 1, color: colors.status.error }}>
+
+        <MenuItem onClick={() => {
+                    handleMenuClose();
+                    setOpenConfirm(true);
+                  }}
+          sx={{ py: 1.2, color: colors.status.error }}>
           <Delete fontSize="small" sx={{ mr: 1 }} />
           Desactivar
         </MenuItem>
       </Menu>
+
+      <AsignarHorarioUsuario
+        horario={horario}
+        open={asignacionOpen}
+        onClose={handleCerrarAsignacion}
+        onAsignacionExitosa={handleAsignacionExitosa}
+      />
+
+      <CardUsuariosAsignados
+        open={modalUsuarioAsignadoOpen}
+        onClose={handleCloseModal}
+        idHorario={horario.id_horario}
+      />
+
+      <ConfirmDialog
+        open={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+        onConfirm={handleConfirmDesactivar}
+        title="Desactivar horario"
+        message="¿Estás seguro que deseas desactivar este horario?"
+      />
+
+     
     </Card>
   );
 };

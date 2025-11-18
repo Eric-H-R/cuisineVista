@@ -26,7 +26,8 @@ import {
   TableRow,
   Chip,
   Tab,
-  Tabs
+  Tabs,
+  Alert
 } from '@mui/material';
 import {
   Edit,
@@ -36,7 +37,8 @@ import {
   Add,
   Delete,
   AccessTime,
-  Description
+  Description,
+  Info
 } from '@mui/icons-material';
 import colors, { withAlpha } from '../../../theme/colores';
 import { validateHorarioForm } from '../../../utils/Validations';
@@ -44,11 +46,11 @@ import { validateHorarioForm } from '../../../utils/Validations';
 const DIAS_SEMANA = [
   { id: 1, nombre: 'Lunes' },
   { id: 2, nombre: 'Martes' },
-  { id: 3, nombre: 'Miércoles' },
+  { id: 3, nombre: 'Miércoles'},
   { id: 4, nombre: 'Jueves' },
   { id: 5, nombre: 'Viernes' },
   { id: 6, nombre: 'Sábado' },
-  { id: 0, nombre: 'Domingo' }
+  { id: 7, nombre: 'Domingo' }
 ];
 
 const FormularioHorarios = ({ 
@@ -93,7 +95,6 @@ const FormularioHorarios = ({
 
   useEffect(() => {
     if (horarioToEdit) {
-      console.log('🔧 horarioToEdit para edición:', horarioToEdit);
       setFormData({
         clave: horarioToEdit.clave || '',
         nombre: horarioToEdit.nombre || '',
@@ -102,6 +103,7 @@ const FormularioHorarios = ({
         detalles: horarioToEdit.detalles || []
       });
       setIsEditing(true);
+      setActiveTab(0); 
     } else {
       setFormData({
         clave: '',
@@ -111,6 +113,7 @@ const FormularioHorarios = ({
         detalles: []
       });
       setIsEditing(false);
+      setActiveTab(0);
     }
     setNuevoDetalle({
       dia_semana: '',
@@ -121,7 +124,6 @@ const FormularioHorarios = ({
     });
     setErrors({});
     setDetalleErrors({});
-    setActiveTab(0);
   }, [horarioToEdit, open, sucursalId]);
 
   const handleChange = (field, value) => {
@@ -230,8 +232,8 @@ const FormularioHorarios = ({
     const { errors: newErrors, isValid } = validateHorarioForm(formData);
     setErrors(newErrors);
 
-    // Validar que haya al menos un detalle
-    if (formData.detalles.length === 0) {
+    // En creación, validar que haya al menos un detalle
+    if (!isEditing && formData.detalles.length === 0) {
       setActiveTab(1); // Cambiar a pestaña de detalles
       return false;
     }
@@ -242,14 +244,25 @@ const FormularioHorarios = ({
   const handleSubmit = () => {
     if (!validateForm()) return;
 
-    const horarioData = {
-      clave: formData.clave.trim().toUpperCase(),
-      nombre: formData.nombre.trim(),
-      descripcion: formData.descripcion.trim(),
-      sucursal_id: formData.sucursal_id,
-      detalles: formData.detalles
-    };
+    let horarioData;
 
+    if (isEditing) {
+      // MODO EDICIÓN: Solo enviar datos básicos
+      horarioData = {
+        clave: formData.clave.trim().toUpperCase(),
+        nombre: formData.nombre.trim(),
+        descripcion: formData.descripcion.trim()
+      };
+    } else {
+      // MODO CREACIÓN: Enviar datos básicos + detalles
+      horarioData = {
+        clave: formData.clave.trim().toUpperCase(),
+        nombre: formData.nombre.trim(),
+        descripcion: formData.descripcion.trim(),
+        sucursal_id: formData.sucursal_id,
+        detalles: formData.detalles
+      };
+    }
     onSave(horarioData);
   };
 
@@ -337,20 +350,19 @@ const FormularioHorarios = ({
       </DialogTitle>
 
       <DialogContent sx={{ p: 0, backgroundColor: colors.background.default }}>
-        {/* Tabs */}
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 2 }}>
-          <Tabs value={activeTab} onChange={handleTabChange}>
-            <Tab label="Información Básica" />
-            <Tab 
-              label={`Detalles del Horario (${formData.detalles.length})`} 
-              disabled={isEditing} // Solo permitir detalles en creación
-            />
-          </Tabs>
-        </Box>
+        {/* Tabs - Solo mostrar en creación */}
+        {!isEditing && (
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3, pt: 2 }}>
+            <Tabs value={activeTab} onChange={handleTabChange}>
+              <Tab label="Información Básica" />
+              <Tab label={`Detalles del Horario (${formData.detalles.length})`} />
+            </Tabs>
+          </Box>
+        )}
 
         <Box sx={{ p: 3 }}>
-          {/* Pestaña 1: Información Básica */}
-          {activeTab === 0 && (
+          {/* Pestaña 1: Información Básica (siempre visible) */}
+          {(activeTab === 0 || isEditing) && (
             <Paper elevation={0} sx={{ 
               p: 3, 
               mb: 3, 
@@ -368,7 +380,7 @@ const FormularioHorarios = ({
               
               <Grid container spacing={3}>
                 {/* Clave */}
-                <Grid item xs={12} sm={6}>
+                <Grid size={{xs: 12, sm: 6}}>
                   <TextField
                     fullWidth
                     label="Clave del Horario"
@@ -392,7 +404,7 @@ const FormularioHorarios = ({
                 </Grid>
 
                 {/* Nombre */}
-                <Grid item xs={12} sm={6}>
+                <Grid size={{xs: 12, sm: 6}}>
                   <TextField
                     fullWidth
                     label="Nombre del Horario"
@@ -416,7 +428,7 @@ const FormularioHorarios = ({
                 </Grid>
 
                 {/* Descripción */}
-                <Grid item xs={12}>
+                <Grid size={{xs: 12}}>
                   <TextField
                     fullWidth
                     multiline
@@ -446,34 +458,36 @@ const FormularioHorarios = ({
                   />
                 </Grid>
 
-                {/* Sucursal (solo lectura) */}
-                <Grid item xs={12}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Sucursal</InputLabel>
-                    <Select
-                      value={formData.sucursal_id}
-                      label="Sucursal"
-                      disabled={true}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: colors.secondary.main,
-                          },
-                        }
-                      }}
-                    >
-                      <MenuItem value={sucursalId}>
-                        Sucursal Actual (ID: {sucursalId})
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                  <Typography variant="caption" sx={{ color: colors.text.secondary, mt: 1, display: 'block' }}>
-                    La sucursal se obtiene automáticamente del sistema
-                  </Typography>
-                </Grid>
+                {/* Sucursal (solo lectura en creación) */}
+                {!isEditing && (
+                  <Grid size={{xs: 12}}>
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Sucursal</InputLabel>
+                      <Select
+                        value={formData.sucursal_id}
+                        label="Sucursal"
+                        disabled={true}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                              borderColor: colors.secondary.main,
+                            },
+                          }
+                        }}
+                      >
+                        <MenuItem value={sucursalId}>
+                          Sucursal Actual (ID: {sucursalId})
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                    <Typography variant="caption" sx={{ color: colors.text.secondary, mt: 1, display: 'block' }}>
+                      La sucursal se obtiene automáticamente del sistema
+                    </Typography>
+                  </Grid>
+                )}
               </Grid>
 
-              {/* Información sobre detalles */}
+              {/* Información sobre detalles (solo en creación) */}
               {!isEditing && (
                 <Box sx={{ mt: 3, p: 2, backgroundColor: colors.paper, borderRadius: 1 }}>
                   <Typography variant="body2" sx={{ color: colors.text.secondary }}>
@@ -485,7 +499,7 @@ const FormularioHorarios = ({
             </Paper>
           )}
 
-          {/* Pestaña 2: Detalles del Horario */}
+          {/* Pestaña 2: Detalles del Horario (solo en creación) */}
           {activeTab === 1 && !isEditing && (
             <>
               {/* Formulario para nuevo detalle */}
@@ -505,8 +519,8 @@ const FormularioHorarios = ({
                 </Box>
                 
                 <Grid container spacing={2} alignItems="flex-end">
-                  <Grid item xs={12} sm={3}>
-                    <FormControl fullWidth size="small" error={!!detalleErrors.dia_semana}>
+                  <Grid size={{xs: 12, sm: 3}}>
+                    <FormControl fullWidth size="small" error={!!errors.dia_semana}>
                       <InputLabel>Día de la semana</InputLabel>
                       <Select
                         value={nuevoDetalle.dia_semana}
@@ -519,69 +533,57 @@ const FormularioHorarios = ({
                           </MenuItem>
                         ))}
                       </Select>
-                      {detalleErrors.dia_semana && (
+                      {errors.dia_semana && (
                         <Typography variant="caption" color="error">
-                          {detalleErrors.dia_semana}
+                          {errors.dia_semana}
                         </Typography>
                       )}
                     </FormControl>
                   </Grid>
-
-                  <Grid item xs={12} sm={2}>
+    
+                  <Grid size={{xs: 12, sm: 2}}>
                     <TextField
                       fullWidth
                       label="Hora inicio"
                       type="time"
                       value={nuevoDetalle.hora_inicio}
                       onChange={(e) => handleNuevoDetalleChange('hora_inicio', e.target.value)}
-                      error={!!detalleErrors.hora_inicio}
-                      helperText={detalleErrors.hora_inicio}
+                      error={!!errors.hora_inicio}
+                      helperText={errors.hora_inicio}
                       size="small"
                       InputLabelProps={{ shrink: true }}
                     />
                   </Grid>
-
-                  <Grid item xs={12} sm={2}>
+    
+                  <Grid size={{xs: 12, sm: 2}}>
                     <TextField
                       fullWidth
                       label="Hora fin"
                       type="time"
                       value={nuevoDetalle.hora_fin}
                       onChange={(e) => handleNuevoDetalleChange('hora_fin', e.target.value)}
-                      error={!!detalleErrors.hora_fin}
-                      helperText={detalleErrors.hora_fin}
+                      error={!!errors.hora_fin}
+                      helperText={errors.hora_fin}
                       size="small"
                       InputLabelProps={{ shrink: true }}
                     />
                   </Grid>
-
-                  <Grid item xs={12} sm={2}>
+    
+                  <Grid size={{xs: 12, sm: 2}}>
                     <TextField
                       fullWidth
                       label="Tolerancia (min)"
                       type="number"
                       value={nuevoDetalle.tolerancia_min}
                       onChange={(e) => handleNuevoDetalleChange('tolerancia_min', e.target.value)}
-                      error={!!detalleErrors.tolerancia_min}
-                      helperText={detalleErrors.tolerancia_min}
+                      error={!!errors.tolerancia_min}
+                      helperText={errors.tolerancia_min}
                       size="small"
                       inputProps={{ min: 0, max: 60 }}
                     />
                   </Grid>
-
-                  <Grid item xs={12} sm={1}>
-                    <TextField
-                      fullWidth
-                      label="Turno"
-                      type="number"
-                      value={nuevoDetalle.turno_idx}
-                      onChange={(e) => handleNuevoDetalleChange('turno_idx', e.target.value)}
-                      size="small"
-                      inputProps={{ min: 1, max: 5 }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={2}>
+    
+                  <Grid size={{xs: 12, sm: 3}}>
                     <Button
                       fullWidth
                       variant="contained"
@@ -594,7 +596,7 @@ const FormularioHorarios = ({
                         }
                       }}
                     >
-                      Agregar
+                      Agregar Detalle
                     </Button>
                   </Grid>
                 </Grid>
@@ -705,41 +707,45 @@ const FormularioHorarios = ({
           Cancelar
         </Button>
 
-        {/* Botones de navegación */}
-        {activeTab === 0 && !isEditing && (
-          <Button
-            onClick={() => setActiveTab(1)}
-            variant="outlined"
-            size="large"
-            sx={{
-              borderColor: colors.primary.main,
-              color: colors.primary.main,
-              '&:hover': {
-                borderColor: colors.primary.dark,
-                backgroundColor: withAlpha(colors.primary.main, '10'),
-              }
-            }}
-          >
-            Siguiente: Detalles
-          </Button>
-        )}
+        {/* Botones de navegación (solo en creación) */}
+        {!isEditing && (
+          <>
+            {activeTab === 0 && (
+              <Button
+                onClick={() => setActiveTab(1)}
+                variant="outlined"
+                size="large"
+                sx={{
+                  borderColor: colors.primary.main,
+                  color: colors.primary.main,
+                  '&:hover': {
+                    borderColor: colors.primary.dark,
+                    backgroundColor: withAlpha(colors.primary.main, '10'),
+                  }
+                }}
+              >
+                Siguiente: Detalles
+              </Button>
+            )}
 
-        {activeTab === 1 && !isEditing && (
-          <Button
-            onClick={() => setActiveTab(0)}
-            variant="outlined"
-            size="large"
-            sx={{
-              borderColor: colors.primary.main,
-              color: colors.primary.main,
-              '&:hover': {
-                borderColor: colors.primary.dark,
-                backgroundColor: withAlpha(colors.primary.main, '10'),
-              }
-            }}
-          >
-            Anterior: Información
-          </Button>
+            {activeTab === 1 && (
+              <Button
+                onClick={() => setActiveTab(0)}
+                variant="outlined"
+                size="large"
+                sx={{
+                  borderColor: colors.primary.main,
+                  color: colors.primary.main,
+                  '&:hover': {
+                    borderColor: colors.primary.dark,
+                    backgroundColor: withAlpha(colors.primary.main, '10'),
+                  }
+                }}
+              >
+                Anterior: Información
+              </Button>
+            )}
+          </>
         )}
 
         <Button

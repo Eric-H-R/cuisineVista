@@ -1,23 +1,62 @@
-// components/CardEstadisticas.jsx
-import { Grid, Paper, Typography, Box } from '@mui/material';
+//import React from 'react';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography
+} from '@mui/material';
+import PropTypes from 'prop-types';
 
-const CardEstadisticas = ({ cardsData }) => {
+const StatsCards = ({ cardsData }) => {
   return (
-    <Grid container spacing={3} sx={{ mb: 4 }}>
-      {cardsData.map((card, index) => (
-        <Grid item xs={12} sm={6} md={3} key={index}>
-          <Paper sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="h4" fontWeight="bold" color="primary">
-              {card.value}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {card.title}
-            </Typography>
-          </Paper>
-        </Grid>
-      ))}
-    </Grid>
+    <Box
+      sx={{
+        width: '100%',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(min(250px, 100%), 1fr))',
+        gap: 3,
+        mb: 4
+      }}
+    >
+      {cardsData.map((card, index) => {
+        // Array de colores diferentes para cada número
+        const numberColors = ['#2E7D32', '#1976D2', '#7B1FA2', '#D32F2F'];
+        
+        return (
+          <Card key={index} sx={{ borderRadius: 2 }}>
+            <CardContent sx={{ height: '100%', textAlign: 'center' }}>
+              <Typography 
+                variant="h5" 
+                component="div" 
+                sx={{ color: numberColors[index] }}
+              >
+                {card.value}
+              </Typography>
+              <Typography 
+                variant="body2" 
+                color="text.secondary"
+                sx={{ mt: 2 }}
+              >
+                {card.title}
+              </Typography>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </Box>
   );
 };
 
-export default CardEstadisticas;
+StatsCards.propTypes = {
+  cardsData: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      value: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+      ]).isRequired
+    })
+  ).isRequired
+};
+
+export default StatsCards;

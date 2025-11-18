@@ -43,6 +43,11 @@ const horariosService = {
   // Obtener horario de usuario
   getByUsuario: (usuarioId) => {
     return API.get(`/horarios/usuario/${usuarioId}`);
+  },
+
+  // Obtener usuarios asignados a un horario
+  getUsuariosAsignados: (idHorario) => {
+     return API.get(`/horarios/usuarios_asignados/${idHorario}`);
   }
 };
 

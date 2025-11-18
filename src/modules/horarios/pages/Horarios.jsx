@@ -33,11 +33,11 @@ const Horarios = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [openDetallesModal, setOpenDetallesModal] = useState(false);
   const [horarioSeleccionado, setHorarioSeleccionado] = useState(null);
-
+  const [asignacionOpen, setAsignacionOpen] = useState(false);
+  const [horarioParaAsignar, setHorarioParaAsignar] = useState(null);
   // Obtener sucursal_id del localStorage al cargar
   useEffect(() => {
     const sucursal = localStorage.getItem('sucursalId');
-    console.log('Sucursal ID desde localStorage:', sucursal);
     
     if (sucursal) {
       const sucursalIdNum = parseInt(sucursal, 10);
@@ -59,26 +59,21 @@ const Horarios = () => {
 
   const loadInitialData = async (sucursalId) => {
     try {
-      console.log('Cargando horarios para sucursal:', sucursalId);
       const { data } = await horariosService.getBySucursal(sucursalId);
-      console.log('Respuesta completa de horarios:', data);
       
       // Adaptar la estructura de datos
       let horariosAdaptados = [];
       
       if (data && data.success && Array.isArray(data.horarios)) {
         horariosAdaptados = data.horarios.map(item => ({
-          // Combinar datos del horario principal con los detalles
           ...item.horario,
           detalles: item.detalles || [],
-          // Agregar propiedades para compatibilidad
           id_horario: item.horario.id_horario,
           estatus: item.horario.es_activo ? 'Activo' : 'Inactivo',
-          usuarios_asignados: 0 // Puedes calcular esto si tienes los datos
+          usuarios_asignados: item.usuarios_asignados || 0 
         }));
       }
       
-      console.log('Horarios adaptados:', horariosAdaptados);
       setHorarios(horariosAdaptados);
       
     } catch (error) {
@@ -97,19 +92,26 @@ const Horarios = () => {
   const handleSaveHorario = async (horarioData) => {
     try {
       setLoading(true);
-      
-      const horarioDataConSucursal = {
-        ...horarioData,
-        sucursal_id: sucursalId
-      };
-      
       let response;
       
       if (horarioToEdit) {
-        await horariosService.update(horarioToEdit.id_horario, horarioDataConSucursal);
+        // MODO EDICIÓN
+        const datosActualizacion = {
+          clave: horarioData.clave,
+          nombre: horarioData.nombre,
+          descripcion: horarioData.descripcion
+        };
+        
+        await horariosService.update(horarioToEdit.id_horario, datosActualizacion);
         toast.success(`Horario "${horarioData.nombre}" actualizado`);
       } else {
-        const { data } = await horariosService.create(horarioDataConSucursal);
+        // CREACION:
+        const datosCreacion = {
+          ...horarioData,
+          sucursal_id: sucursalId
+        };;
+        
+        const { data } = await horariosService.create(datosCreacion);
         response = data;
         toast.success(`Horario "${horarioData.nombre}" creado`);
       }
@@ -170,6 +172,16 @@ const Horarios = () => {
     setSearchTerm(term);
   };
 
+  const handleAbrirAsignacion = (horario) => {
+    setHorarioParaAsignar(horario);
+    setAsignacionOpen(true);
+  };
+
+  const handleAsignacionExitosa = () => {
+    setAsignacionOpen(false);
+    loadInitialData(sucursalId);
+  }
+
   // Calcular estadísticas
   const statsData = [
     { 
@@ -214,14 +226,6 @@ const Horarios = () => {
             <Typography variant="subtitle1" color="text.secondary">
               Administra los horarios y turnos de la sucursal
             </Typography>
-            {sucursalId && (
-              <Chip 
-                label={`Sucursal ID: ${sucursalId}`}
-                size="small"
-                color="primary"
-                sx={{ mt: 1 }}
-              />
-            )}
           </Box>
 
           <Button
@@ -281,23 +285,19 @@ const Horarios = () => {
               value={searchTerm}
             />
 
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                Mostrando {filteredHorarios.length} de {horarios.length} horarios
-              </Typography>
-            </Box>
-
             {loading ? (
               <LoadingComponent message="Cargando horarios..." />
             ) : (
               <Grid container spacing={3}>
                 {filteredHorarios.map((horario) => (  
-                  <Grid item xs={12} md={6} lg={4} key={horario.id_horario}>
+                  <Grid size={{xs:12, md:6, lg:4}}  key={horario.id_horario}>
                     <CardHorario 
                       horario={horario}
                       onEdit={() => handleNewHorario(horario)}
                       onDesactivar={() => handleDesactivarHorario(horario.id_horario)}
+                      onAsignarUsuario={handleAbrirAsignacion}
                       onGestionarDetalles={() => handleGestionarDetalles(horario)}
+                      onAsignacionExitosa={handleAsignacionExitosa}
                     />
                   </Grid>
                 ))}
