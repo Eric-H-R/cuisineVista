@@ -89,6 +89,7 @@ const [usuario, setUsuario] = useState("");
       const token = await getToken(messaging, {
         vapidKey: import.meta.env.VAP_ID_KEY,
       });
+      console.log("Token Firebase obtenido:", token);
       return token;
     } catch (error) {
       console.error("Error obteniendo token Firebase:", error);
@@ -96,6 +97,15 @@ const [usuario, setUsuario] = useState("");
     }
   };
 
+  onMessage(messaging, (payload) => {
+    console.log("📲 Mensaje recibido en foreground:", payload);
+
+    // Si quieres mostrar una notificación dentro de la app
+    new Notification(payload.notification.title, {
+      body: payload.notification.body,
+      icon: payload.notification.icon,
+    });
+  });
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -123,7 +133,7 @@ const [usuario, setUsuario] = useState("");
       toast.success('¡Inicio de sesión exitoso!');
 
       // Guarda usuario y token
-      login(data.access_token);
+      login(data.access_token, data.user);
 
       setTimeout(() => {
         navigate("/tiendas");
@@ -194,7 +204,7 @@ const [usuario, setUsuario] = useState("");
           
         }}>
           {/* Primera mitad - Logo */}
-          <Grid item size={6} xs={12} md={4} sx={{
+          <Grid  size={6} xs={12} md={4} sx={{
             display: { xs: 'none', sm: 'flex', md: 'flex' },
             alignItems: 'center',
             justifyContent: 'center',

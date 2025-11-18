@@ -6,100 +6,150 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  IconButton,
   Box,
   Typography,
   Avatar,
   Divider,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import ReceiptIcon from "@mui/icons-material/Receipt";
-import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
-import TableBarIcon from "@mui/icons-material/TableBar";
-import InventoryIcon from "@mui/icons-material/Inventory";
-import SettingsIcon from "@mui/icons-material/Settings";
-import PaymentIcon from "@mui/icons-material/Payment";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import StoreIcon from "@mui/icons-material/Store";
-import PeopleIcon from "@mui/icons-material/People";
-import LogoutIcon from "@mui/icons-material/Logout";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
+
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import { useAuth } from '../../context/AuthContext'; 
+import LogoutIcon from "@mui/icons-material/Logout";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import MenuIcon from "@mui/icons-material/Menu";
+
+import ICONS from "../../config/icons.config";
+import moduleRouteMap from "../../config/routes.config";
+import { useAuth } from "../../context/AuthContext";
+
+import { useState } from "react";
 
 const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
-  const {logout} = useAuth();
-  const location = useLocation();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleLogout = () => {
-    logout()
+    logout();
     navigate("/");
   };
 
-  const menuItems = [
-    { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
-    { text: "Ordenes", icon: <ReceiptIcon />, path: "/ordenes" },
-    { text: "Mesas", icon: <TableBarIcon />, path: "/mesas" },
-    { text: "Menú", icon: <RestaurantMenuIcon />, path: "/menu" },
-    { text: "Inventario", icon: <InventoryIcon />, path: "/inventario" },
-    { text: "Reservas", icon: <CalendarMonthIcon />, path: "/reservas" },
-    { text: "Pagos", icon: <PaymentIcon />, path: "/pagos" },
-    { text: "Sucursales", icon: <StoreIcon />, path: "/sucursales" },
-    { text: "Usuarios", icon: <PeopleIcon />, path: "/usuarios" },
-     { text: "Horarios", icon: <WorkHistoryIcon/>, path: "/horarios"},
-    { text: "Configuración", icon: <SettingsIcon />, path: "/configuracion" }
-   
-  ];
+  const nameUser = user ? user.nombre : "Usuario";
+  const roleUser = user ? user.roles[0].nombre : "Rol";
+  const modulesWithRoutes = user.modulos.map((mod) => ({
+    ...mod,
+    route: moduleRouteMap[mod.clave] || "#",
+    Icon: ICONS[mod.clave] || ICONS.DASHBOARD,
+  }));
+
+  const drawerWidth = collapsed ? 80 : 260;
 
   const drawerContent = (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <Box sx={{ textAlign: "center", py: 1 }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          Cuisine
-        </Typography>
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        px: collapsed ? 1 : 2,
+        transition: "all 0.3s ease",
+      }}
+    >
+      {/* HEADER */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: collapsed ? "center" : "space-between",
+          py: 3,
+          flexShrink: 0,
+        }}
+      >
+        {!collapsed && (
+          <Typography variant="h5" sx={{ fontWeight: "bold", color: "white" }}>
+            Cuisine
+          </Typography>
+        )}
+
       </Box>
 
-      <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} />
+      <Divider sx={{ bgcolor: "rgba(255,255,255,0.3)" }} />
 
-      <List sx={{ flexGrow: 1 }}>
-        {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              component={Link}
-              to={item.path}
-              sx={{
-                color: "#fff",
-                backgroundColor:
-                  location.pathname === item.path
-                    ? "rgba(255,255,255,0.1)"
-                    : "transparent",
-                "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" },
-              }}
-              onClick={handleDrawerToggle} // Cierra el drawer en móviles
-            >
-              <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+      {/* LISTA DE MODULOS */}
+      <Box 
+       sx={{
+            flexGrow: 1,
+            overflowY: "auto",
+            mt: 1,
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
+          }}>
+        <List>
+          {modulesWithRoutes.map((mod) => {
+            const IconComponent = mod.Icon;
+            const isActive = location.pathname === mod.route;
 
-      <Box sx={{ mt: "auto" }}>
-        <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)", mb: 1 }} />
+            return (
+              <Tooltip key={mod.nombre} title={collapsed ? mod.nombre : ""} placement="right">
+                <ListItem disablePadding sx={{ width: "100%" }}>
+                  <ListItemButton
+                    component={Link}
+                    to={mod.route}
+                    sx={{
+                      color: "white",
+                      borderRadius: 2,
+                      mb: 0.5,
+                      px: collapsed ? 1.5 : 2,
+                      justifyContent: collapsed ? "center" : "flex-start",
+                      transition: "all 0.3s ease",
+                      backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "transparent",
+                      "&:hover": {
+                        backgroundColor: "rgba(255,255,255,0.3)",
+                        transform: "scale(1.03)",
+                      },
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: isActive ? "#FFD700" : "white",
+                        minWidth: collapsed ? "auto" : 40,
+                        justifyContent: "center",
+                        transition: "all 0.3s ease",
+                        mr: collapsed ? 0 : 2,
+                      }}
+                    >
+                      <IconComponent />
+                    </ListItemIcon>
+
+                    {!collapsed && (
+                      <ListItemText
+                        primary={mod.nombre}
+                        sx={{ opacity: collapsed ? 0 : 1, transition: "opacity 0.3s" }}
+                      />
+                    )}
+                  </ListItemButton>
+                </ListItem>
+              </Tooltip>
+            );
+          })}
+        </List>
+      </Box>
+
+      {/* FOOTER */}
+      <Box sx={{ flexShrink: 0 }}>
+        <Divider sx={{ bgcolor: "rgba(255,255,255,0.2)" }} />
         <List>
           <ListItem>
-            <ListItemAvatar>
-              <Avatar sx={{ bgcolor: "#4caf50" }}>A</Avatar>
-            </ListItemAvatar>
-            <ListItemText primary="Admin" secondary="Administrador" />
-            <IconButton
-              aria-label="LogOut"
-              sx={{ color: "white" }}
-              onClick={handleLogout}
-            >
+            {!collapsed && (
+              <>
+                <Avatar sx={{ bgcolor: "white", color: "#588157", mr: 1 }}>{nameUser.charAt(0)}</Avatar>
+                <ListItemText primary={nameUser} secondary={roleUser} sx={{ color: "white" }} />
+              </>
+            )}
+
+            <IconButton sx={{ color: "white" }} onClick={handleLogout}>
               <LogoutIcon />
             </IconButton>
           </ListItem>
@@ -110,39 +160,45 @@ const Sidebar = ({ mobileOpen, handleDrawerToggle }) => {
 
   return (
     <>
-     <Drawer
-  variant="temporary"
-  open={mobileOpen}
-  onClose={handleDrawerToggle}
-  ModalProps={{ keepMounted: true }}
-  sx={{
-    display: { xs: 'block', sm: 'none' },
-    '& .MuiDrawer-paper': {
-      width: 260,
-      backgroundColor: '#588157',
-      color: 'white',
-    },
-  }}
->
-  {drawerContent}
-</Drawer>
+      {/* MOBILE */}
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: "block", sm: "none" },
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            backgroundColor: "#588157",
+            color: "white",
+            transition: "width 0.3s ease",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
 
-<Drawer
-  variant="permanent"
-  sx={{
-    display: { xs: 'none', sm: 'block' },
-    '& .MuiDrawer-paper': {
-      width: 260,
-      backgroundColor: '#588157',
-      color: 'white',
-      borderRight: 'none',
-    },
-  }}
-  open
->
-  {drawerContent}
-</Drawer>
-
+      {/* DESKTOP */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: "none", sm: "block" },
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            backgroundColor: "#588157",
+            color: "white",
+            borderRight: "none",
+            transition: "width 0.3s ease",
+            overflowX: "hidden",
+            display: "flex",
+            flexDirection: "column",
+          },
+        }}
+        open
+      >
+        {drawerContent}
+      </Drawer>
     </>
   );
 };

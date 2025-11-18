@@ -1,21 +1,29 @@
-//import React from 'react';
+import React from 'react';
 import {
   Box,
   Paper,
   TextField,
   InputAdornment,
-  FormControl,
-  Select,
-  MenuItem,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import PropTypes from 'prop-types';
 
-const BarraBusqueda = ({ placeholder = "Buscar..." }) => {
+const BarraBusqueda = ({ 
+  placeholder = "Buscar...", 
+  onSearch,
+  value = ""
+}) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const handleSearchChange = (event) => {
+    const searchTerm = event.target.value;
+    if (onSearch) {
+      onSearch(searchTerm);
+    }
+  };
 
   return (
     <Paper 
@@ -23,7 +31,8 @@ const BarraBusqueda = ({ placeholder = "Buscar..." }) => {
       sx={{ 
         p: 2, 
         mb: 3,
-        borderRadius: 2
+        borderRadius: 2,
+        backgroundColor: 'background.paper'
       }}
     >
       <Box sx={{ 
@@ -37,6 +46,8 @@ const BarraBusqueda = ({ placeholder = "Buscar..." }) => {
           fullWidth
           variant="outlined"
           placeholder={placeholder}
+          value={value}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -45,53 +56,36 @@ const BarraBusqueda = ({ placeholder = "Buscar..." }) => {
             ),
             sx: { 
               borderRadius: 2,
-              backgroundColor: 'background.paper'
+              backgroundColor: 'background.default'
             }
           }}
           sx={{
             flexGrow: 1,
-            mr: isMobile ? 0 : 2
+            mr: isMobile ? 0 : 2,
+            '& .MuiOutlinedInput-root': {
+              '&:hover fieldset': {
+                borderColor: 'primary.main',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'primary.main',
+              }
+            }
           }}
         />
-
-        {/* Filtros */}
-        <Box sx={{ 
-          display: 'flex', 
-          gap: 2,
-          width: isMobile ? '100%' : 'auto'
-        }}>
-          <FormControl 
-            size="small" 
-            sx={{ 
-              minWidth: isMobile ? '50%' : 140,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: 2,
-                backgroundColor: 'background.paper'
-              }
-            }}
-          >
-            <Select
-              value="todas"
-              displayEmpty
-              inputProps={{ 'aria-label': 'Filtrar por estado' }}
-            >
-              <MenuItem value="todas">Todas</MenuItem>
-              <MenuItem value="activas">Activas</MenuItem>
-              <MenuItem value="inactivas">Inactivas</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
       </Box>
     </Paper>
   );
 };
 
 BarraBusqueda.propTypes = {
-  placeholder: PropTypes.string
+  placeholder: PropTypes.string,
+  onSearch: PropTypes.func,
+  value: PropTypes.string
 };
 
 BarraBusqueda.defaultProps = {
-  placeholder: "Buscar..."
+  placeholder: "Buscar...",
+  value: ""
 };
 
 export default BarraBusqueda;

@@ -1,9 +1,9 @@
 import API from '../../../services/api'
 import { createApiService }  from '../../../services/apiFactory'
 
-const authService = {
-  ...createApiService("auth"),
-  login: (data) => API.post(`/auth/login`, data),
+const usuarioService = {
+  ...createApiService("usuarios"),
+  createUser: (data) => API.post(`/usuarios/empleado`, data),
 };
 
-export default authService;
+export default usuarioService;
