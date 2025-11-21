@@ -8,7 +8,7 @@ const moduleRouteMap = {
   RESERVAS_CLIENTE: "/reservas-cliente",
   ORDENES: "/ordenes",
   ORDENES_PICKUP: "/ordenes-pickup",
-  CATEGORIAS: "/categorias",
+  CATEGORIAS: "/menus",
   COMBOS: "/combos",
   PRODUCTOS_RECETA_COS: "/productos-recetas-costos",
   LIMPIEZA: "/limpieza",

@@ -178,7 +178,7 @@ const [usuario, setUsuario] = useState("");
         pauseOnHover
         theme="light"
       />
-
+    
       <Box sx={{
         backgroundImage: "url('/img/fondo_2.png')",
         minHeight: '100vh',
@@ -225,12 +225,11 @@ const [usuario, setUsuario] = useState("");
           </Grid>
 
           {/* Segunda mitad - Formulario */}
-          <Grid item size={6} xs={12} md={4} sx={{
+          <Grid item size={6} xs={12} md={6} sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             p: { xs: 0, md: 4 },
-            
           }}>
             <Box component="form"
               onSubmit={handleLogin}
@@ -238,7 +237,7 @@ const [usuario, setUsuario] = useState("");
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 2,
-                padding: { xs: 2, sm: 3, md: 4 },
+                padding: { xs: 2, sm: 3, md: 0 },
                 alignItems: 'center',
                 width: '100%'
               }}>

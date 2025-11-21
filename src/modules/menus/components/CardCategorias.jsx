@@ -14,7 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import PropTypes from 'prop-types';
 
-const CardCategoria = ({ category }) => {
+const CardCategoria = ({ category, onEdit, onViewProducts, onDelete }) => {
   return (
     <Card sx={{ 
       borderRadius: 2, 
@@ -36,6 +36,7 @@ const CardCategoria = ({ category }) => {
               </Typography>
               <Typography variant="body2" color="#57300D">
                 {category.description}
+                {console.log(category)}
               </Typography>
             </Box>
           </Box>
@@ -87,6 +88,7 @@ const CardCategoria = ({ category }) => {
             variant="outlined" 
             startIcon={<EditIcon />}
             size="small"
+            onClick={() => onEdit ? onEdit(category) : null}
             sx={{
               color: '#588157',
               borderColor: '#588157',
@@ -101,6 +103,7 @@ const CardCategoria = ({ category }) => {
           <Button 
             variant="outlined" 
             size="small"
+            onClick={() => onViewProducts ? onViewProducts(category) : null}
             sx={{
               color: '#57300D',
               borderColor: '#57300D',
@@ -112,19 +115,15 @@ const CardCategoria = ({ category }) => {
           >
             Ver Productos
           </Button>
-          <Button 
-            variant="outlined" 
+          
+          <Button
+            variant="outlined"
             size="small"
-            sx={{
-              color: category.status ? '#D32F2F' : '#2E7D32',
-              borderColor: category.status ? '#D32F2F' : '#2E7D32',
-              '&:hover': {
-                backgroundColor: category.status ? '#D32F2F' : '#2E7D32',
-                color: 'white'
-              }
-            }}
+            color="error"
+            onClick={() => onDelete ? onDelete(category) : null}
+            sx={{ ml: 1 }}
           >
-            {category.status ? 'Desactivar' : 'Activar'}
+            Eliminar
           </Button>
         </Box>
       </CardContent>
@@ -142,6 +141,13 @@ CardCategoria.propTypes = {
     incomeToday: PropTypes.number.isRequired,
     status: PropTypes.bool.isRequired
   }).isRequired
+};
+
+CardCategoria.defaultProps = {
+  onEdit: null,
+  onToggle: null,
+  onViewProducts: null,
+  onDelete: null
 };
 
 export default CardCategoria;

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo  } from 'react';
 import {
   Box, Typography, Button,Container
 } from '@mui/material';
-import CircularProgress from '@mui/material/CircularProgress';
+
 import AddIcon from '@mui/icons-material/Add';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import CardEstadisticas from '../components/CardEstadisticas';
@@ -337,7 +337,7 @@ return (
 
 
         {loading ? (
-          <LoadingComponent message="Cargando usuarios..." />
+          <LoadingComponent message="Cargando usuarios..."  />
         ) : (
                 <UserTabs users={filteredUsers} roles={roles} clientes={filteredClients} actions={actions} />
         )}
