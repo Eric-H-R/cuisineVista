@@ -5,19 +5,11 @@ import { Box, Card, CardContent, Typography } from '@mui/material';
 const CardEstadisticas = ({ cardsData }) => {
     const numberColors = ['#2E7D32', '#1976D2', '#7B1FA2', '#D32F2F'];
   return (
-    <Box
-        sx={{
-            width: '100%',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(min(250px, 100%), 1fr))',
-            gap: 2,
-            mt: 4
-        }}
-    >
+    <Box sx={{ display: 'flex', gap: 2, mt:2, mb:4 }}>
         {cardsData.map((card, index) => (
             <Card key={index}
              elevation={0} 
-            sx={{ borderRadius: 4}}
+            sx={{ flex: 1, textAlign: 'center', padding: 2, mt:4 }}
             >
                 <CardContent sx={{ height: '100%', textAlign: 'center' }}>
                 <Typography variant="h5" component="div" sx={{ color: numberColors[index] }}>

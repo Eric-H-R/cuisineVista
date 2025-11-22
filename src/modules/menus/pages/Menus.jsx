@@ -3,129 +3,197 @@ import {
   Box,
   Typography,
   Container,
-  Button
+  Button,
+  Dialog,
+  DialogTitle,
+  Avatar,
+  CircularProgress
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 //import AddIcon from '@mui/icons-material/Add';
-import CategoryIcon from '@mui/icons-material/Category';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
 import StatsCards from '../components/CardEstadisticas'
 import BarraBusqueda from '../components/BarraBusqueda';
-import TabsMenus from '../components/TabsMenus';
+import CategoryCard from '../components/CardCategorias';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+
+import { useEffect, useState } from 'react';
+import MenuService from '../services/MenuService';
+import { useAuth } from '../../../context/AuthContext';
+import LoadingComponent from '../../../components/Loadings/LoadingComponent';
+import { toast } from 'react-toastify';
 
 const Menus = () => {
-  // Stats cards data
+  const { sucursal } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [combos, setCombos] = useState([]);
+
+  // Stats will be computed from fetched data (basic placeholders until more APIs exist)
   const statsData = [
-    { title: 'Total Productos', value: 45 },
-    { title: 'Combos Activos', value: 12 },
-    { title: 'Categorías', value: 8 },
-    { title: 'Ventas Hoy', value: '$8,420' }
+    { title: 'Total Productos', value: products.length },
+    { title: 'Combos Activos', value: combos.filter(c => c.status).length },
+    { title: 'Categorías', value: categories.length },
   ];
-  
-  // Datos de productos
-  const products = [
-    {
-      id: 1,
-      name: 'Pasta Alfredo',
-      description: 'Pasta con salsa cremosa de parmesano y pollo',
-      category: 'Platos Fuertes',
-      price: 18500,
-      cost: 8500,
-      inventory: 25,
-      status: true
-    },
-    {
-      id: 2,
-      name: 'Ensalada César',
-      description: 'Lechuga romana, crutones, parmesano y aderezo césar',
-      category: 'Entradas',
-      price: 12500,
-      cost: 4500,
-      inventory: 18,
-      status: true
-    },
-    {
-      id: 3,
-      name: 'Tiramisú',
-      description: 'Postre italiano con café y mascarpone',
-      category: 'Postres',
-      price: 9500,
-      cost: 3500,
-      inventory: 0,
-      status: false
-    }
-  ];
-
-  // Datos de combos
-  const combos = [
-    {
-      id: 1,
-      name: 'Combo Familiar',
-      description: 'Perfecto para 4 personas',
-      type: 'Familiar',
-      comboPrice: 45000,
-      individualPrice: 52000,
-      status: true,
-      products: ['Pizza Grande', 'Ensalada César', 'Refresco 2L', 'Postre']
-    },
-    {
-      id: 2,
-      name: 'Combo Pareja',
-      description: 'Ideal para una cena romántica',
-      type: 'Pareja',
-      comboPrice: 32000,
-      individualPrice: 38000,
-      status: true,
-      products: ['Pasta Alfredo', 'Vino Tinto', 'Postre Especial']
-    }
-  ];
-
-  // Datos de categorías
-  const categories = [
-    {
-      id: 1,
-      name: 'Entradas',
-      description: 'Platos para comenzar tu experiencia',
-      productCount: 8,
-      salesToday: 23,
-      incomeToday: 287500,
-      status: true
-    },
-    {
-      id: 2,
-      name: 'Platos Fuertes',
-      description: 'Nuestros platos principales',
-      productCount: 15,
-      salesToday: 45,
-      incomeToday: 845000,
-      status: true
-    },
-    {
-      id: 3,
-      name: 'Postres',
-      description: 'Dulces para terminar tu comida',
-      productCount: 10,
-      salesToday: 18,
-      incomeToday: 171000,
-      status: true
-    },
-    {
-      id: 4,
-      name: 'Bebidas',
-      description: 'Refrescos, jugos y bebidas especiales',
-      productCount: 12,
-      salesToday: 67,
-      incomeToday: 201000,
-      status: true
-    }
-  ];
-
-  const handleNewCategory = () => {
-    console.log('Abrir modal para nueva categoría');
-  };
 
   const handleNewProduct = () => {
     console.log('Abrir modal para nuevo producto');
   };
+
+  //Agregar Categoría Modal state
+  const [openAdd, setOpenAdd] = useState(false);
+  const [loadingAdd, setLoadingAdd] = useState(false);
+  const [newCategory, setNewCategory] = useState({ nombre: '', descripcion: '' });
+
+  const handleOpenAdd = () => setOpenAdd(true);
+  const handleCloseAdd = () => {
+    setOpenAdd(false);
+    setLoadingAdd(false);
+    setNewCategory({ nombre: '', descripcion: '' });
+  };
+
+  const handleNewCategoryChange = (e) => {
+    const { name, value } = e.target;
+    setNewCategory(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmitNewCategory = async (e) => {
+    e.preventDefault();
+    if (!newCategory.nombre.trim()) return toast.error('El nombre es requerido');
+    try {
+      setLoadingAdd(true);
+      const payload = {
+        nombre: newCategory.nombre.trim(),
+        descripcion: newCategory.descripcion.trim()
+      };
+      const res = await MenuService.create(payload);
+      const created = res && res.data && (res.data.data || res.data) || null;
+      // map created to category shape
+      const mapped = {
+       // id: created?.id_categoria || created?.id || created?.id_menu || Math.random(),
+        name: created?.nombre || created?.name || newCategory.nombre,
+        description: created?.descripcion || created?.description || newCategory.descripcion,
+        productCount: 0,
+        salesToday: 0,
+        incomeToday: 0,
+        status: created?.es_activa !== undefined ? created.es_activa : true
+      };
+      setCategories(prev => [mapped, ...prev]);
+      toast.success('Categoría creada');
+      handleCloseAdd();
+    } catch (err) {
+      console.error('Error creando categoría', err);
+      toast.error('Error creando categoría');
+    } finally {
+      setLoadingAdd(false);
+    }
+  };
+
+  // Edit/Delete modals state
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editValues, setEditValues] = useState({ name: '', description: '', status: true });
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+
+  const handleOpenEdit = (category) => {
+    setEditingCategory(category);
+    setEditValues({ name: category.name || '', description: category.description || '', status: category.status });
+  };
+
+  const handleCloseEdit = () => {
+    setEditingCategory(null);
+    setEditValues({ name: '', description: '', status: true });
+    setEditLoading(false);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEditValues(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handleSubmitEdit = async (e) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+    if (!editValues.name.trim()) return toast.error('El nombre es requerido');
+    try {
+      setEditLoading(true);
+      const payload = {
+        nombre: editValues.name.trim(),
+        descripcion: editValues.description.trim(),
+        es_activa: !!editValues.status
+      };
+      await MenuService.update(editingCategory.id, payload);
+      // update local state
+      setCategories(prev => prev.map(c => c.id === editingCategory.id ? { ...c, name: payload.nombre, description: payload.descripcion, status: payload.es_activa } : c));
+      toast.success('Categoría actualizada');
+      handleCloseEdit();
+    } catch (err) {
+      console.error('Error actualizando categoría', err);
+      toast.error('Error actualizando categoría');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleOpenDelete = (category) => {
+    setCategoryToDelete(category);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDelete = () => {
+    setDeleteDialogOpen(false);
+    setCategoryToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!categoryToDelete) return;
+    try {
+      await MenuService.delete(categoryToDelete.id);
+      setCategories(prev => prev.filter(c => c.id !== categoryToDelete.id));
+      toast.success('Categoría eliminada');
+    } catch (err) {
+      console.error('Error eliminando categoría', err);
+      toast.error('Error eliminando categoría');
+    } finally {
+      handleCloseDelete();
+    }
+  };
+
+  useEffect(() => {
+    const loadMenus = async () => {
+      setLoading(true);
+      try {
+        const params = {};
+        if (sucursal) params.sucursal_id = sucursal;
+        const res = await MenuService.getAll(params);
+        const data = res && res.data && (res.data.data || res.data) || [];
+
+        // Map API response to category objects expected by TabsMenus
+        const mapped = data.map(item => ({
+          id: item.id_categoria || item.id || item.id_menu,
+          name: item.nombre || item.name || '',
+          description: item.descripcion || item.description || '',
+          productCount: item.productCount || 0,
+          salesToday: item.salesToday || 0,
+          incomeToday: item.incomeToday || 0,
+          status: item.es_activa !== undefined ? item.es_activa : (item.status !== undefined ? item.status : true)
+        }));
+
+        setCategories(mapped);
+      } catch (error) {
+        console.error('Error cargando menús:', error);
+        toast.error('Error cargando menús');
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadMenus();
+  }, [sucursal]);
 
   return (
     <Container maxWidth="xl" sx={{ mt: 0 }}>
@@ -145,37 +213,15 @@ const Menus = () => {
           <Button
             variant="outlined"
             size="large"
-            startIcon={<CategoryIcon />}
-            onClick={handleNewCategory}
+            startIcon={<AddIcon />}
+            onClick={handleOpenAdd}
             sx={{
               color: '#57300D',
               borderColor: '#57300D',
-              fontWeight: 'bold',
-              px: 3,
-              '&:hover': {
-                backgroundColor: '#57300D',
-                color: 'white'
-              }
+              fontWeight: 'bold'
             }}
           >
-            NUEVA CATEGORÍA
-          </Button>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<RestaurantIcon />}
-            onClick={handleNewProduct}
-            sx={{
-              backgroundColor: '#588157',
-              color: 'white',
-              fontWeight: 'bold',
-              px: 3,
-              '&:hover': {
-                backgroundColor: '#486a47'
-              }
-            }}
-          >
-            NUEVO PRODUCTO
+            Agregar Categoría
           </Button>
         </Box>
       </Box>
@@ -186,12 +232,76 @@ const Menus = () => {
       {/*Barra de búsqueda y filtros */}
       <BarraBusqueda />
 
-      {/* Tabs con Productos, Combos y Categorías */}
-      <TabsMenus 
-        products={products}
-        combos={combos}
-        categories={categories}
-      />
+      {/* Categorías: listado con edición y eliminación */}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <LoadingComponent />
+        </Box>
+      ) : (
+        <Box sx={{ mt: 3 }}>
+          <Grid container spacing={2} >
+            {categories.map((category) => (
+              <Grid size={{xs: 12, md: 6, lg:4}} key={category.id}>
+                <CategoryCard 
+                  category={category}
+                  onEdit={handleOpenEdit}
+                  onToggle={(cat) => handleOpenEdit({ ...cat, status: !cat.status })}
+                  onViewProducts={() => {}}
+                  onDelete={handleOpenDelete}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
+
+      {/* Edit Category Modal */}
+      <Dialog open={!!editingCategory} onClose={handleCloseEdit} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ backgroundColor: '#588157', color: 'white' }}>Editar Categoría</DialogTitle>
+        <Box component="form" onSubmit={handleSubmitEdit} sx={{ p: 3 }}>
+          <TextField name="name" label="Nombre" fullWidth value={editValues.name} onChange={handleEditChange} sx={{ mb: 2 }} />
+          <TextField name="description" label="Descripción" fullWidth multiline rows={3} value={editValues.description} onChange={handleEditChange} sx={{ mb: 2 }} />
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+            <Button onClick={handleCloseEdit}>Cancelar</Button>
+            <Button type="submit" variant="contained" disabled={editLoading} sx={{ backgroundColor: '#57300D' }}>{editLoading ? 'Guardando...' : 'Guardar'}</Button>
+          </Box>
+        </Box>
+      </Dialog>
+
+      {/* Agregar Categoría Modal */}
+      <Dialog open={openAdd} onClose={handleCloseAdd} fullWidth maxWidth="md" PaperProps={{ sx: { borderRadius: 3 } }}>
+        <DialogTitle sx={{ backgroundColor: '#588157', color: 'white', py: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar sx={{ bgcolor: '#A3B18A', color: '#588157', width: 48, height: 48 }}>
+              <AddIcon sx={{ fontSize: 32 }} />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>Agregar Nueva Categoría</Typography>
+            </Box>
+          </Box>
+        </DialogTitle>
+
+        <Box component="form" onSubmit={handleSubmitNewCategory} sx={{ p: 4 }}>
+          <TextField name="nombre" label="Nombre de la Categoría *" value={newCategory.nombre} onChange={handleNewCategoryChange} fullWidth required sx={{ mb: 2 }} />
+          <TextField name="descripcion" label="Descripción" value={newCategory.descripcion} onChange={handleNewCategoryChange} fullWidth multiline rows={3} sx={{ mb: 2 }} />
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+            <Button onClick={handleCloseAdd}>Cancelar</Button>
+            <Button type="submit" variant="contained" disabled={loadingAdd} startIcon={loadingAdd ? <CircularProgress size={18} /> : null} sx={{ backgroundColor: '#57300D' }}>{loadingAdd ? 'Guardando...' : 'Guardar Categoría'}</Button>
+          </Box>
+        </Box>
+      </Dialog>
+
+      {/* Delete Confirm Dialog */}
+      <Dialog open={deleteDialogOpen} onClose={handleCloseDelete}>
+        <DialogTitle>Eliminar Categoría</DialogTitle>
+        <Box sx={{ p: 3 }}>
+          <Typography>¿Estás seguro de eliminar la categoría "{categoryToDelete?.name}"?</Typography>
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
+            <Button onClick={handleCloseDelete}>Cancelar</Button>
+            <Button variant="contained" color="error" onClick={handleConfirmDelete}>Eliminar</Button>
+          </Box>
+        </Box>
+      </Dialog>
       
     </Container>
   );

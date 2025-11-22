@@ -4,11 +4,14 @@ import { AuthProvider } from "./context/AuthContext";
 
 import Layout from "./components/LayoutMenu/Layout";
 import PrivateRoute from "./routes/PrivateRoute";
+import LoadingComponent from "./components/Loadings/LoadingComponent";
 
 // === Lazy Imports ===
 const Login = lazy(() => import("./modules/auth/components/login/login"));
 const Tiendas = lazy(() => import("./components/tiendas/pages/Tiendas"));
 
+const Auditoria = lazy(() => import("./modules/auditoria/pages/Auditoria"));
+const Cuenta = lazy(() => import("./modules/cuenta/pages/Cuenta"));
 const Dashboard = lazy(() => import("./modules/dashboard/pages/Dashboard"));
 const Ordenes = lazy(() => import("./modules/ordenes/pages/Ordenes"));
 const Mesas = lazy(() => import("./modules/mesas/pages/Mesas"));
@@ -18,6 +21,7 @@ const Reservas = lazy(() => import("./modules/reservas/pages/Reservas"));
 const Pagos = lazy(() => import("./modules/pagos/pages/Pagos"));
 const Sucursales = lazy(() => import("./modules/sucursales/pages/Sucursales"));
 const Usuarios = lazy(() => import("./modules/usuarios/pages/Usuarios"));
+const Areas = lazy(() => import("./modules/areas/pages/Areas"));
 const Horarios = lazy(() => import("./modules/horarios/pages/Horarios"));
 const Configuracion = lazy(() => import("./modules/configuraciones/pages/Configuraciones"));
 const Recetas = lazy(() => import("./modules/recetas/pages/Recetas"));
@@ -28,9 +32,7 @@ const Recepcion = lazy(() => import("./modules/recepciones/pages/Recepcion"));
 const Productos = lazy(() => import("./modules/productos/pages/Productos"));
 // Loader básico
 const Loader = () => (
-  <div style={{ padding: 40, textAlign: "center", fontSize: 18 }}>
-    Cargando módulo...
-  </div>
+  <LoadingComponent message="Cargando..." overlay />
 );
 
 const App = () => {
@@ -47,12 +49,16 @@ const App = () => {
             {/* RUTAS PRIVADAS */}
             <Route element={<PrivateRoute />}>
               <Route element={<Layout />}>
+                <Route path="/auditoria" element={<Auditoria />} />
+                <Route path="/cuenta" element={<Cuenta />}></Route>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/ordenes" element={<Ordenes />} />
+                <Route path="/areas" element={<Areas />} />
                 <Route path="/mesas" element={<Mesas />} />
                 <Route path="/productos-recetas-costos" element={<Productos />} />
                 <Route path="/insumos" element={<Insumos />} />
                 <Route path="/reservas" element={<Reservas />} />
+                <Route path="/menus" element={<Menus />} />
                 <Route path="/pagos" element={<Pagos />} />
                 <Route path="/sucursales" element={<Sucursales />} />
                 <Route path="/usuarios" element={<Usuarios />} />
@@ -63,6 +69,7 @@ const App = () => {
                 <Route path="/proveedores" element={<Proveedores />} />
                 <Route path="/compras" element={<Compras />} />
                 <Route path="/mermas" element={<Recepcion />} />
+
               </Route>
             </Route>
           </Routes>

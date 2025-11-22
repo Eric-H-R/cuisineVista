@@ -3,26 +3,21 @@ import {
   Box,
   Card,
   CardContent,
-  Typography
+  Typography,
+  Grid
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
 const CardEstadisticas = ({ cardsData }) => {
   return (
-    <Box
-      sx={{
-        width: '100%',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(min(350px, 100%), 1fr))',
-        gap: 3,
-        mb: 4
-      }}
-    >
+    
+     <Grid container item  spacing={2} sx={{ mb: 4 }}>
       {cardsData.map((card, index) => {
         const numberColors = ['#2E7D32', '#1976D2', '#7B1FA2', '#D32F2F'];
         
         return (
-          <Card key={index} sx={{ borderRadius: 2 }}>
+          <Grid item size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
+             <Card  sx={{ borderRadius: 2 }}>
             <CardContent sx={{ height: '100%', textAlign: 'center'}}>
               <Typography 
                 variant="h5" 
@@ -40,9 +35,11 @@ const CardEstadisticas = ({ cardsData }) => {
               </Typography>
             </CardContent>
           </Card>
+          </Grid>
+         
         );
       })}
-    </Box>
+    </Grid>
   );
 };
 

@@ -9,21 +9,13 @@ import PropTypes from 'prop-types';
 
 const StatsCards = ({ cardsData }) => {
   return (
-    <Box
-      sx={{
-        width: '100%',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(min(250px, 100%), 1fr))',
-        gap: 3,
-        mb: 4
-      }}
-    >
+   <Box sx={{ display: 'flex', gap: 2, mt:2, mb:4 }}>
       {cardsData.map((card, index) => {
         // Array de colores diferentes para cada número
         const numberColors = ['#2E7D32', '#1976D2', '#7B1FA2', '#D32F2F'];
         
         return (
-          <Card key={index} sx={{ borderRadius: 2 }}>
+          <Card key={index} sx={{ flex: 1, textAlign: 'center', padding: 2, mt:4, borderRadius: 2 }} >
             <CardContent sx={{ height: '100%', textAlign: 'center' }}>
               <Typography 
                 variant="h5" 
