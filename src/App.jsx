@@ -11,6 +11,7 @@ const Login = lazy(() => import("./modules/auth/components/login/login"));
 const Tiendas = lazy(() => import("./components/tiendas/pages/Tiendas"));
 
 const Auditoria = lazy(() => import("./modules/auditoria/pages/Auditoria"));
+const Cuenta = lazy(() => import("./modules/cuenta/pages/Cuenta"));
 const Dashboard = lazy(() => import("./modules/dashboard/pages/Dashboard"));
 const Ordenes = lazy(() => import("./modules/ordenes/pages/Ordenes"));
 const Mesas = lazy(() => import("./modules/mesas/pages/Mesas"));
@@ -45,6 +46,7 @@ const App = () => {
             <Route element={<PrivateRoute />}>
               <Route element={<Layout />}>
                 <Route path="/auditoria" element={<Auditoria />} />
+                <Route path="/cuenta" element={<Cuenta />}></Route>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/ordenes" element={<Ordenes />} />
                 <Route path="/areas" element={<Areas />} />
@@ -58,7 +60,7 @@ const App = () => {
                 <Route path="/usuarios" element={<Usuarios />} />
                 <Route path="/horarios" element={<Horarios />} />
                 <Route path="/configuracion" element={<Configuracion />} />
-                <Route path="/cuenta" element={<Pagos />} />
+
               </Route>
             </Route>
           </Routes>
