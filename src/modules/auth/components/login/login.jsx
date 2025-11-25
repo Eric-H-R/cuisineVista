@@ -190,68 +190,59 @@ const [usuario, setUsuario] = useState("");
         alignItems: 'center',
         justifyContent: 'center', 
       }}>
-        <Grid container sx={{
+        <Grid container
+        width={{ xs: '100%', sm: '100%',  lg: 1000 }}
+        height={{xs: '100%', sm: '100%', lg: 530}}
+        sx={{
           display: 'flex',
           backgroundColor: 'white',
           borderRadius: 5,
-          boxShadow: 3,
-          flexDirection: { xs: 'column', md: 'row' },
+          boxShadow: 10,
           justifyContent: 'center',
-          alignItems: {xs: 'center', md: 'stretch'},
-          width: { xs: '100%', sm: '90%', md: '80%', lg: '70%' },
-          maxWidth: 1200,
           overflow: 'hidden',
-          
         }}>
           {/* Primera mitad - Logo */}
-          <Grid  size={6} xs={12} md={4} sx={{
-            display: { xs: 'none', sm: 'flex', md: 'flex' },
+          <Grid  size={{ xs: 12, md: 8 , lg: 6 }} sx={{
+            display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             backgroundSize: 'cover',
-            borderTopLeftRadius: { xs: 0, md: 5 },
-            borderBottomLeftRadius: { xs: 0, md: 5 },
-            minHeight: { xs: 120, md: 300 },
           }}>
             <Box sx={{
               backgroundImage: "url('/img/logos.png')",
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              width: { xs: '60%', sm: '80%', md: '100%' },
-              height: { xs: 120, sm: 250, md: '100%' },
-              borderRadius: { xs: 0, md: 5 },
+              width: '100%',
+              height: '100%',
             }}>
             </Box>
           </Grid>
 
           {/* Segunda mitad - Formulario */}
-          <Grid item size={6} xs={12} md={6} sx={{
+          <Grid  size={{ xs: 12, md: 8, lg: 6 }} sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            p: { xs: 0, md: 4 },
+            
           }}>
             <Box component="form"
               onSubmit={handleLogin}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2,
-                padding: { xs: 2, sm: 3, md: 0 },
                 alignItems: 'center',
-                width: '100%'
               }}>
-                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                  <img src="/img/logo_c.png" alt="Logo Pequeño" style={{ width: '60%', maxWidth: 260, height: 'auto' }} />
+              <Grid size={{ xs: 12, md: 8, lg: 8}}>
+                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <img src="/img/logo_c.png" alt="Logo Pequeño" style={{ width: '65%', maxWidth: 260, height: 'auto' }} />
                 </Box>
-                <Typography variant="h3" align="center" sx={{ color: '#496e4c', mb: 2, mt:3, fontWeight: 'bold' }}>
+                <Typography align="center" variant="h4" sx={{ color: '#496e4c', mb: 1, mt:2, fontWeight: 'bold' }}>
                   Inicia Sesión
                 </Typography>
-                <Typography variant="body1" align="center" sx={{ color: '#6b8d64', mb: 2 }}>
+                <Typography  align="center" variant="subtitle2" sx={{ color: '#6b8d64', }}>
                   Bienvenido de nuevo, por favor ingresa tus credenciales.
                 </Typography>
-
-              <FormControl sx={{ width: { xs: '100%', sm: '80%', md: '50ch' } }}>
+              <FormControl  fullWidth variant="standard" required>
                 <TextField
                   id="name"
                   label="Usuario"
@@ -307,7 +298,7 @@ const [usuario, setUsuario] = useState("");
                 />
               </FormControl>
 
-              <FormControl sx={{ m: 1, width: { xs: '100%', sm: '80%', md: '50ch' } }} variant="standard" required>
+              <FormControl fullWidth variant="standard" required>
                 <InputLabel 
                   htmlFor="standard-adornment-password"
                   error={!!errors.password}
@@ -357,15 +348,18 @@ const [usuario, setUsuario] = useState("");
               <FormControlLabel
                 control={<Checkbox value="recordarme" defaultChecked color="success"/>}
                 label="Remember me"
-                sx={{ color: '#746a5e' }}
+                sx={{ color: '#746a5e' , size: 'small'}}
               />
 
               <Button
+                fullWidth
                 type="submit"
                 size='normal'
                 variant="outlined"
                 disabled={loading || !!errors.email || !!errors.password || !usuario.trim() || !password.trim()}
-                sx={{width: { xs: '100%', sm: '80%', md: '50ch' }, mb:2,
+                sx={{ mb:2,
+                     
+                      width: '100%',
                       color: '#463929',
                       borderColor: '#463929',
                       '&:hover': {
@@ -389,8 +383,8 @@ const [usuario, setUsuario] = useState("");
               >
                 {loading ? 'Iniciando sesión...' : 'Sign up'}
               </Button>
-              
-            </Box>
+              </Grid>
+          </Box>
           </Grid>
         </Grid>
       </Box>
