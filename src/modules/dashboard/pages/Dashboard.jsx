@@ -4,8 +4,12 @@ import CardDashboard from '../components/CardDashboard';
 import CardInventario from '../components/CardPedidos';
 import CardMesas from '../components/CardMesas';
 
+
+
 const Dashboard = () => {
 
+
+ 
   const statsData = [
     { title: 'Ingresos del día', value: '$150,420' },
     { title: 'Pedidos', value: 501 },
@@ -14,6 +18,8 @@ const Dashboard = () => {
   ];
 
   return (
+ 
+
     <Container maxWidth="xl" sx={{ mt: 0 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>

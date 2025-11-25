@@ -1,49 +1,177 @@
 import React from "react";
-import { Box, Card, CardContent, Typography, Button } from "@mui/material";
-
+import { Box, Card, CardContent, Typography, Button, IconButton } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
+import SecurityIcon from '@mui/icons-material/Security';
+import PersonIcon from '@mui/icons-material/Person';
+import colores from "../../../theme/colores";
 
 const CardOption = ({ onEditProfile, onChangePassword, onViewInfo, user }) => {
     const OpcionesCard = [
     { 
-      title: 'En este apartado puedes administrar la información de tu cuenta', 
-      value: 'Administrar información',
-      action: onEditProfile
+      title: 'Administra y actualiza la información personal de tu cuenta', 
+      value: 'Perfil',
+      action: onEditProfile,
+      icon: <PersonIcon />,
+      color: colores.primary.dark
     },
     { 
-      title: 'Aquí puedes cambiar tu contraseña de acceso', 
-      value: 'Restablecer contraseña',
-      action: onChangePassword
+      title: 'Actualiza tu contraseña para mantener tu cuenta segura', 
+      value: 'Contraseña',
+      action: onChangePassword,
+      icon: <SecurityIcon />,
+      color: colores.primary.main
     },
     { 
-      title: 'Información del usuario autenticado', 
+      title: 'Información del usuario actualmente autenticado en el sistema', 
       value: user?.nombre || 'Usuario',
-      action: onViewInfo
+      action: onViewInfo,
+      icon: <EditIcon />,
+      color: colores.primary.light
     },
   ];
  
     return (
-        <Box mt={3} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%' }}>
+        <Box mt={3} sx={{ 
+            display: 'flex', 
+            gap: 3,
+            justifyContent: 'center', 
+            width: '100%',
+            flexWrap: { xs: 'wrap', md: 'nowrap' }
+        }}>
         {OpcionesCard.map((card, index) => (
-            <Card key={index}
-             elevation={0} 
-            sx={{ width: '30%', minWidth: 260, height: 160, borderRadius: 4, justifyContent: 'space-between', display: 'flex' , p:2}}
+            <Card 
+                key={index}
+                elevation={0} 
+                sx={{ 
+                    height: 300, 
+                    borderRadius: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    background: 'white',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                        borderColor: card.color
+                    },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    p: 0,
+                    overflow: 'hidden',
+                    position: 'relative'
+                }}
             >
-                <CardContent sx={{ height: '100%', textAlign: 'start' }}>
-                <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                    {card.value}
-                </Typography>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
-                    {card.title}
-                </Typography>
-                </CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', pr: 2 }}>
-                  <Button variant="outlined" onClick={() => card.action && card.action()}>
-                    Ver
-                  </Button>
+                {/* Efecto de acento de color sutil - ESTE ES EL BORDE TOP */}
+                <Box 
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: 6,
+                        background: `linear-gradient(90deg, ${card.color}, ${card.color}80)`
+                    }}
+                />
+
+                {/* Header con icono */}
+                <Box 
+                    sx={{ 
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        p:3,
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                    }}
+                >
+                    <Box 
+                        sx={{ 
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 40,
+                            height: 40,
+                            borderRadius: 2,
+                            backgroundColor: `${card.color}15`,
+                            color: card.color,
+                            mr: 2,
+                            flexShrink: 0
+                        }}
+                    >
+                        {card.icon}
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                        <Typography 
+                            variant="h6" 
+                            sx={{ 
+                                fontWeight: 600,
+                                fontSize: '1.1rem',
+                                color: 'text.primary',
+                                lineHeight: 1.2
+                            }}
+                        >
+                            {card.value}
+                        </Typography>
+                        {card.subtitle && (
+                            <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                    color: 'text.secondary',
+                                    fontSize: '0.875rem',
+                                    mt: 0.5
+                                }}
+                            >
+                                {card.subtitle}
+                            </Typography>
+                        )}
+                    </Box>
                 </Box>
+
+                {/* Contenido */}
+                <CardContent sx={{ 
+                    flex: 1, 
+                    p: 3, 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between'
+                }}>
+                    <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ 
+                            lineHeight: 1.5,
+                            fontSize: '0.9rem',
+                          
+                        }}
+                    >
+                        {card.title}
+                    </Typography>
+                    
+                    <Button 
+                        variant="outlined" 
+                        onClick={() => card.action && card.action()}
+                        sx={{ 
+                            alignSelf: 'flex-start',
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            fontSize: '0.875rem',
+                            borderColor: 'divider',
+                            color: 'text.primary',
+                            '&:hover': {
+                                borderColor: card.color,
+                                backgroundColor: `${card.color}08`,
+                                transform: 'translateY(-1px)'
+                            },
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        Gestionar
+                    </Button>
+                </CardContent>
             </Card>
         ))}
     </Box>
     )
 };
+
 export default CardOption;
