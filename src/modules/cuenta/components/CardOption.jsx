@@ -1,40 +1,46 @@
 import React from "react";
-import { Box, Card, CardContent, Typography } from "@mui/material";
+import { Box, Card, CardContent, Typography, Button } from "@mui/material";
 
 
-const CardOption = () => {
-    
-    
+const CardOption = ({ onEditProfile, onChangePassword, onViewInfo, user }) => {
     const OpcionesCard = [
     { 
       title: 'En este apartado puedes administrar la información de tu cuenta', 
-      value: 'Administrar información'
+      value: 'Administrar información',
+      action: onEditProfile
     },
     { 
       title: 'Aquí puedes cambiar tu contraseña de acceso', 
-      value: 'Restablecer contraseña'
+      value: 'Restablecer contraseña',
+      action: onChangePassword
     },
     { 
-      title: 'En este apartado puedes administrar la información de tu cuenta', 
-      value: 'Restablecer contraseña'
+      title: 'Información del usuario autenticado', 
+      value: user?.nombre || 'Usuario',
+      action: onViewInfo
     },
   ];
  
     return (
-        <Box mt={10} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%' }}>
+        <Box mt={3} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%' }}>
         {OpcionesCard.map((card, index) => (
             <Card key={index}
              elevation={0} 
-            sx={{ width: '45%', height: 160, borderRadius: 4, justifyContent: 'justify', display: 'flex' , p:1}}
+            sx={{ width: '30%', minWidth: 260, height: 160, borderRadius: 4, justifyContent: 'space-between', display: 'flex' , p:2}}
             >
                 <CardContent sx={{ height: '100%', textAlign: 'start' }}>
-                <Typography variant="h5" component="div" >
+                <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
                     {card.value}
                 </Typography>
-                <Typography variant="subtitle1" color="text.secondary">
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
                     {card.title}
                 </Typography>
                 </CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', pr: 2 }}>
+                  <Button variant="outlined" onClick={() => card.action && card.action()}>
+                    Ver
+                  </Button>
+                </Box>
             </Card>
         ))}
     </Box>

@@ -23,6 +23,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // API 
 import horariosService from '../services/horarios.service';
+import Vacaciones from '../components/Vacaciones';
 
 const Horarios = () => {
   const [loading, setLoading] = useState(true);
@@ -320,6 +321,7 @@ const Horarios = () => {
             )}
           </>
         )}
+        <Vacaciones sucursalId={sucursalId} />
       </Container>
     </>
   );
