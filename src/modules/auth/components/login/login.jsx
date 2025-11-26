@@ -225,7 +225,7 @@ const [usuario, setUsuario] = useState("");
           </Grid>
 
           {/* Segunda mitad - Formulario */}
-          <Grid item size={6} xs={12} md={6} sx={{
+          <Grid size={6} xs={12} md={6} sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',

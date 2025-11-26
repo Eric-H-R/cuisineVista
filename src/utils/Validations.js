@@ -504,13 +504,9 @@ export const recepcionDetalleValidations = {
     return '';
   },
   
-  lote_numero: (value) => {
-    if (value && value.length > 50) return 'El número de lote no puede exceder 50 caracteres';
-    return '';
-  },
-  
   lote_proveedor: (value) => {
-    if (value && value.length > 50) return 'El lote del proveedor no puede exceder 50 caracteres';
+    if (!value || value.toString().trim().length === 0) return 'El lote del proveedor es requerido';
+    if (value.length > 50) return 'El lote del proveedor no puede exceder 50 caracteres';
     return '';
   }
 };
@@ -535,7 +531,7 @@ export const validateRecepcionForm = (formData) => {
       detalleErrors.unidades_por_present = recepcionDetalleValidations.unidades_por_present(detalle.unidades_por_present);
       detalleErrors.costo_unitario = recepcionDetalleValidations.costo_unitario(detalle.costo_unitario);
       detalleErrors.fecha_caducidad = recepcionDetalleValidations.fecha_caducidad(detalle.fecha_caducidad);
-      detalleErrors.lote_numero = recepcionDetalleValidations.lote_numero(detalle.lote_numero);
+      //detalleErrors.lote_numero = recepcionDetalleValidations.lote_numero(detalle.lote_numero);
       detalleErrors.lote_proveedor = recepcionDetalleValidations.lote_proveedor(detalle.lote_proveedor);
       
       // Filtrar errores vacíos

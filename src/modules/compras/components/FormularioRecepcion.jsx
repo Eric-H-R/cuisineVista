@@ -95,8 +95,6 @@ const FormularioRecepcion = ({ open, onClose, onSave, loading, initialCompraId =
         const { data } = await comprasService.getById(initialCompraId);
         const compra = data?.data ?? data;
         
-        console.log('📦 Datos de la compra:', compra);
-        
         if (compra) {
           setCompraData(compra);
           
@@ -110,7 +108,6 @@ const FormularioRecepcion = ({ open, onClose, onSave, loading, initialCompraId =
               unidad_medida: detalle.insumo.unidad_medida?.clave || 'und'
             }));
 
-            console.log('✅ Insumos disponibles:', insumosDisponibles);
             setInsumosCompra(insumosDisponibles);
             
             if (insumosDisponibles.length > 0) {
@@ -156,88 +153,116 @@ const FormularioRecepcion = ({ open, onClose, onSave, loading, initialCompraId =
     setFieldErrors(reindexedErrors);
   };
 
-  const handleDetalleChange = (index, field, value) => {
-    if (fieldErrors[index] && fieldErrors[index][field]) {
-      const newFieldErrors = { ...fieldErrors };
-      delete newFieldErrors[index][field];
-      setFieldErrors(newFieldErrors);
+ const handleDetalleChange = (index, field, value) => {
+  // Limpiar error del campo cuando el usuario empiece a escribir
+  if (fieldErrors[index] && fieldErrors[index][field]) {
+    const newFieldErrors = { ...fieldErrors };
+    delete newFieldErrors[index][field];
+    
+    // Si no quedan errores en este índice, eliminar el índice
+    if (Object.keys(newFieldErrors[index]).length === 0) {
+      delete newFieldErrors[index];
     }
     
-    setDetalles((d) => d.map((item, i) => (i === index ? { 
-      ...item, 
-      [field]: value
-    } : item)));
-  };
+    setFieldErrors(newFieldErrors);
+  }
+  
+  // Limpiar errores generales de detalles
+  if (errors.detalles) {
+    const newErrors = { ...errors };
+    delete newErrors.detalles;
+    setErrors(newErrors);
+  }
+  
+  setDetalles((d) => d.map((item, i) => (i === index ? { 
+    ...item, 
+    [field]: value
+  } : item)));
+};
 
-  const getFieldError = (index, field) => {
-    return fieldErrors[index]?.[field] || '';
-  };
+const getFieldError = (index, field) => {
+  
+  if (fieldErrors[index] && fieldErrors[index][field]) {
+    return fieldErrors[index][field];
+  }
+  
+  return '';
+};
 
-  const handleSubmit = async () => {
-    // Preparar datos para validación
-    const formData = {
-      compra_id: initialCompraId,
-      recibido_por: usuarioId,
-      sucursal_id: sucursalId,
-      detalles: detalles.map(det => ({
-        ...det,
-        cant_presentacion: Number(det.cant_presentacion) || 0,
-        unidades_por_present: Number(det.unidades_por_present) || 1,
-        costo_unitario: det.costo_unitario ? Number(det.costo_unitario) : null
-      }))
-    };
-
-    // Validar formulario
-    const validation = validateRecepcionForm(formData);
-    setErrors(validation.errors);
-    setFieldErrors(validation.errors.detalles || {});
-
-    console.log('🔍 Resultado validación:', validation);
-    
-    if (!validation.isValid) {
-      console.log('❌ Errores de validación:', validation.errors);
-      
-      // Mostrar snackbar con el primer error encontrado
-      let errorMessage = 'Por favor complete todos los campos requeridos correctamente';
-      
-      if (validation.errors.detalles && Array.isArray(validation.errors.detalles)) {
-        const primerDetalleConError = validation.errors.detalles.find(det => det && Object.keys(det).length > 0);
-        if (primerDetalleConError) {
-          const primerMensajeError = Object.values(primerDetalleConError)[0];
-          errorMessage = primerMensajeError;
-        } else if (validation.errors.detalles && typeof validation.errors.detalles === 'string') {
-          errorMessage = validation.errors.detalles;
-        }
-      } else if (validation.errors.compra_id) {
-        errorMessage = validation.errors.compra_id;
-      }
-      
-      showSnackbar(errorMessage, 'error');
-      return;
-    }
-
-    // Si pasa validación, preparar y enviar el payload
-    const detallesPayload = detalles.map((det) => ({
-      insumo_id: parseInt(det.insumo_id, 10),
-      cant_presentacion: Number(det.cant_presentacion),
-      unidades_por_present: det.unidades_por_present ? Number(det.unidades_por_present) : 1,
+const handleSubmit = async () => {
+  // Preparar datos para validación
+  const formData = {
+    compra_id: initialCompraId,
+    recibido_por: usuarioId,
+    sucursal_id: sucursalId,
+    detalles: detalles.map(det => ({
+      ...det,
+      cant_presentacion: Number(det.cant_presentacion) || 0,
+      unidades_por_present: Number(det.unidades_por_present) || 1,
       costo_unitario: det.costo_unitario ? Number(det.costo_unitario) : null,
       fecha_caducidad: det.fecha_caducidad || null,
-      lote_numero: det.lote_numero || null,
       lote_proveedor: det.lote_proveedor || null
-    }));
-
-    const payload = {
-      compra_id: parseInt(initialCompraId, 10),
-      detalles: detallesPayload,
-      notas: notas || `Recepción completa de compra ${compraData?.folio || `#${initialCompraId}`}`,
-      recibido_por: usuarioId,
-      sucursal_id: sucursalId
-    };
-
-    console.log('🚀 Enviando recepción:', payload);
-    await onSave(payload);
+    }))
   };
+
+
+  // Validar formulario
+  const validation = validateRecepcionForm(formData);
+  
+  if (!validation.isValid) {
+    
+    const newFieldErrors = {};
+    
+    if (validation.errors.detalles && Array.isArray(validation.errors.detalles)) {
+      validation.errors.detalles.forEach((errorObj, index) => {
+        if (errorObj && typeof errorObj === 'object') {
+          newFieldErrors[index] = errorObj;
+        }
+      });
+    }
+    
+    setFieldErrors(newFieldErrors);
+    
+    // Mostrar snackbar con el primer error
+    let errorMessage = 'Por favor complete todos los campos requeridos';
+    
+    if (validation.errors.detalles && Array.isArray(validation.errors.detalles)) {
+      const firstDetailWithError = validation.errors.detalles.find(det => det && Object.keys(det).length > 0);
+      if (firstDetailWithError) {
+        errorMessage = Object.values(firstDetailWithError)[0];
+      }
+    } else if (validation.errors.compra_id) {
+      errorMessage = validation.errors.compra_id;
+    } else if (typeof validation.errors.detalles === 'string') {
+      errorMessage = validation.errors.detalles;
+    }
+    
+    showSnackbar(errorMessage, 'error');
+    return;
+  }
+
+  // Limpiar errores si la validación pasa
+  setFieldErrors({});
+
+  // PREPARAR PAYLOAD FINAL
+  const detallesPayload = detalles.map((det) => ({
+    insumo_id: parseInt(det.insumo_id, 10),
+    cant_presentacion: Number(det.cant_presentacion),
+    unidades_por_present: Number(det.unidades_por_present) || 1,
+    costo_unitario: det.costo_unitario ? Number(det.costo_unitario) : null,
+    fecha_caducidad: det.fecha_caducidad || null,
+    lote_proveedor: det.lote_proveedor || null
+  }));
+
+  const payload = {
+    compra_id: parseInt(initialCompraId, 10),
+    detalles: detallesPayload,
+    notas: notas || `Recepción completa de compra ${compraData?.folio || `#${initialCompraId}`}`,
+    recibido_por: usuarioId
+  };
+
+  await onSave(payload);
+};
 
   const resetForm = () => {
     setCompraData(null);
@@ -264,7 +289,6 @@ const FormularioRecepcion = ({ open, onClose, onSave, loading, initialCompraId =
       .reduce((total, det) => total + (Number(det.cant_presentacion) || 0), 0);
   };
 
-  console.log('Compras data:', compraData);
   return (
     <>
       <Dialog 
@@ -298,7 +322,7 @@ const FormularioRecepcion = ({ open, onClose, onSave, loading, initialCompraId =
           </Box>
         </DialogTitle>
         
-        <DialogContent sx={{ backgroundColor: colors.background.default }}>
+         <DialogContent sx={{ backgroundColor: colors.background.default }}>
           <Box sx={{ mt: 1 }}>
             {compraData && (
               <Alert 
@@ -478,7 +502,8 @@ const FormularioRecepcion = ({ open, onClose, onSave, loading, initialCompraId =
                           />
                         </Grid>
 
-                        <Grid size={{xs: 12, sm: 4}}>
+                        {/* SOLO LOTE_PROVEEDOR - lote_numero eliminado */}
+                        <Grid size={{xs: 12, sm: 6}}>
                           <TextField
                             label="Lote proveedor"
                             value={det.lote_proveedor}
@@ -490,19 +515,7 @@ const FormularioRecepcion = ({ open, onClose, onSave, loading, initialCompraId =
                           />
                         </Grid>
 
-                        <Grid size={{xs: 12, sm: 4}}>
-                          <TextField
-                            label="Número de lote"
-                            value={det.lote_numero}
-                            onChange={(e) => handleDetalleChange(idx, 'lote_numero', e.target.value)}
-                            fullWidth
-                            placeholder="Ej: LOTE-2024-001"
-                            error={!!getFieldError(idx, 'lote_numero')}
-                            helperText={getFieldError(idx, 'lote_numero')}
-                          />
-                        </Grid>
-
-                        <Grid size={{xs: 12, sm: 4}}>
+                        <Grid size={{xs: 12, sm: 2}}>
                           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <IconButton 
                               onClick={() => handleRemoveDetalle(idx)} 

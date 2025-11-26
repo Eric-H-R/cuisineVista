@@ -12,7 +12,8 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  IconButton
+  IconButton,
+  CardMedia
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -83,7 +84,6 @@ const CardProducto = ({ producto, onEdit, onEliminar }) => {
       currency: 'MXN'
     }).format(precio);
   };
-  console.log('Detalle completo:', detalleCompleto);
   return (
     <Card 
       sx={{ 
@@ -100,6 +100,18 @@ const CardProducto = ({ producto, onEdit, onEliminar }) => {
         }
       }}
     >
+      {producto.imagen_url && (
+        <CardMedia
+          component="img"
+          height="140"
+          image={producto.imagen_url}
+          alt={producto.nombre}
+          sx={{ 
+            objectFit: 'cover',
+            width: '100%'
+          }}
+        />
+      )}
       <CardContent sx={{ flexGrow: 1, pb: 1 }}>
         {/* Header con nombre y estado (ACTUALIZADO) */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>

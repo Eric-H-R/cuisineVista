@@ -73,14 +73,12 @@ const Compras = () => {
       if (!isNaN(sucursalIdNum)) {
         setSucursalId(sucursalIdNum);
         loadCompras(sucursalIdNum);
-        loadRecepciones(sucursalIdNum); // CARGAR RECEPCIONES
+        loadRecepciones(sucursalIdNum);
       } else {
-        console.error('sucursalId no es un número válido:', sucursal);
         toast.error('ID de sucursal inválido');
         setLoading(false);
       }
     } else {
-      console.error('No se encontró sucursalId en localStorage');
       toast.error('No se encontró la sucursal en el sistema');
       setLoading(false);
     }
@@ -184,10 +182,7 @@ const Compras = () => {
     }
   };
 
-  // NUEVA FUNCIÓN: Ver detalle de recepción
   const handleVerDetalleRecepcion = (recepcion) => {
-    // Aquí puedes implementar un modal para ver el detalle de la recepción
-    console.log('Ver detalle de recepción:', recepcion);
     toast.info(`Detalle de recepción #${recepcion.id_recepcion} - Próximamente`);
   };
 
@@ -195,12 +190,11 @@ const Compras = () => {
     try {
       setLoading(true);
       
-      // Añadir sucursal_id a los datos
       const datosCompleta = {
         ...compraData,
         sucursal_id: sucursalId
       };
-      console.log('Datos completos para guardar compra:', datosCompleta);
+      
       await comprasService.create(datosCompleta);
       toast.success('Compra registrada correctamente');
       
@@ -469,7 +463,6 @@ const Compras = () => {
     }
   };
 
-  console.log('aaa ', filteredRecepciones)
   return (
     <>
       <ToastContainer

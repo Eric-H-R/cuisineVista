@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -16,23 +16,31 @@ import {
   MenuItem,
   Divider,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Card,
+  CardMedia
 } from '@mui/material';
 import {
   Close as CloseIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
-  Restaurant as RestaurantIcon
+  Restaurant as RestaurantIcon,
+  Category as CategoryIcon,
+  AttachMoney as MoneyIcon,
+  CloudUpload as UploadIcon
 } from '@mui/icons-material';
 
 // Services
 import productosService from '../services/productos.service';
-import colors, { withAlpha } from '../../../theme/colores';
+import categoriasService from '../../menus/services/MenuService';
+
 // Validations
-import { validateProductoForm } from '../../../utils/Validations';
+import { validateProductoForm } from '../../../utils/validations';
 
 // TOAST
 import { toast } from 'react-toastify';
+
+import colors,{ withAlpha } from '../../../theme/colores';
 
 const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) => {
   const [formData, setFormData] = useState({
@@ -46,16 +54,23 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
   
   const [errors, setErrors] = useState({});
   const [insumos, setInsumos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [loadingInsumos, setLoadingInsumos] = useState(false);
+  const [loadingCategorias, setLoadingCategorias] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [precioSugerido, setPrecioSugerido] = useState(0);
   const [nuevoItem, setNuevoItem] = useState({
     insumo_id: '',
     cantidad: ''
   });
 
-  // Cargar insumos al abrir el modal
+  const fileInputRef = useRef(null);
+
+  // Cargar insumos y categorías al abrir el modal
   useEffect(() => {
     if (open) {
       loadInsumos();
+      loadCategorias();
     }
   }, [open]);
 
@@ -68,34 +83,47 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
     }
   }, [productoToEdit, open]);
 
+  // Calcular precio sugerido cuando cambian los items de receta
+  useEffect(() => {
+    calcularPrecioSugerido();
+  }, [formData.receta_items]);
+
   const loadInsumos = async () => {
     try {
-        setLoadingInsumos(true);
-        const sucursalId = localStorage.getItem('sucursalId');
-        if (!sucursalId) {
+      setLoadingInsumos(true);
+      const sucursalId = localStorage.getItem('sucursalId');
+      if (!sucursalId) {
         toast.error('No se encontró la sucursal en localStorage');
-        setInsumos([]);
         return;
-        }
-
-        const { data } = await productosService.getExistencias(parseInt(sucursalId), true);
-        
-        if (data && data.success && Array.isArray(data.data)) {
-        const insumosActivos = data.data.filter(insumo => insumo.es_activo);
-        setInsumos(insumosActivos);
-        console.log('insumos disponibles:', insumosActivos);
-        } else {
-        setInsumos([]);
-        console.log('No se pudieron cargar los insumos o respuesta vacía');
-        }
+      }
+      const { data } = await productosService.getExistencias(parseInt(sucursalId), true);
+ 
+      if (data && data.success) {
+        setInsumos(data.data.filter(insumo => insumo.es_activo));
+      }
     } catch (error) {
-        console.error('Error cargando insumos:', error);
-        toast.error('Error cargando los insumos');
-        setInsumos([]);
+      console.error('Error cargando insumos:', error);
+      toast.error('Error cargando los insumos');
     } finally {
-        setLoadingInsumos(false);
+      setLoadingInsumos(false);
     }
-    };
+  };
+
+  const loadCategorias = async () => {
+    try {
+      setLoadingCategorias(true);
+      const { data } = await categoriasService.getAll();
+      
+      if (data && data.success) {
+        setCategorias(data.data.filter(categoria => categoria.es_activa));
+      }
+    } catch (error) {
+      console.error('Error cargando categorías:', error);
+      toast.error('Error cargando las categorías');
+    } finally {
+      setLoadingCategorias(false);
+    }
+  };
 
   const loadProductoData = async () => {
     try {
@@ -103,7 +131,6 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
       
       if (data && data.success) {
         const producto = data.data;
-        console.log('Datos del producto cargado:', producto);
         setFormData({
           nombre: producto.nombre || '',
           descripcion: producto.descripcion || '',
@@ -113,7 +140,9 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
           receta_items: producto.receta?.items?.map(item => ({
             insumo_id: item.insumo_id,
             cantidad: item.cantidad,
-            id_receta_item: item.id_receta_item
+            id_receta_item: item.id_receta_item,
+            insumo_nombre: item.insumo.nombre,
+            unidad_clave: item.insumo.unidad_medida.clave
           })) || []
         });
       }
@@ -136,7 +165,63 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
       insumo_id: '',
       cantidad: ''
     });
+    setPrecioSugerido(0);
     setErrors({});
+  };
+
+  // Función para calcular precio sugerido basado en costos de insumos
+  const calcularPrecioSugerido = () => {
+    if (formData.receta_items.length === 0) {
+      setPrecioSugerido(0);
+      return;
+    }
+
+    let costoTotal = 0;
+
+    formData.receta_items.forEach(item => {
+      const insumo = insumos.find(i => i.id_insumo === item.insumo_id);
+      if (insumo && insumo.costo_promedio > 0) {
+        costoTotal += item.cantidad * insumo.costo_promedio;
+      }
+    });
+
+    // Aplicar margen de ganancia (60% - costo de operación típico en restaurantes)
+    const precioSugeridoCalculado = costoTotal * 2.5; // 150% de margen
+    setPrecioSugerido(precioSugeridoCalculado);
+  };
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      toast.error('Por favor selecciona un archivo de imagen válido');
+      return;
+    }
+
+    // Validar tamaño (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('La imagen no debe exceder los 5MB');
+      return;
+    }
+
+    setUploadingImage(true);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target.result;
+      setFormData(prev => ({
+        ...prev,
+        imagen_url: base64
+      }));
+      setUploadingImage(false);
+    };
+    reader.onerror = () => {
+      toast.error('Error al cargar la imagen');
+      setUploadingImage(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleInputChange = (field, value) => {
@@ -188,7 +273,8 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
       insumo_id: parseInt(nuevoItem.insumo_id),
       cantidad: parseFloat(nuevoItem.cantidad),
       insumo_nombre: insumoSeleccionado.nombre,
-      unidad_clave: insumoSeleccionado.unidad_clave
+      unidad_clave: insumoSeleccionado.unidad_clave,
+      costo_promedio: insumoSeleccionado.costo_promedio || 0
     };
 
     setFormData(prev => ({
@@ -209,6 +295,13 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
     }));
   };
 
+  const usarPrecioSugerido = () => {
+    setFormData(prev => ({
+      ...prev,
+      precio: precioSugerido.toFixed(2)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -221,60 +314,44 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
       return;
     }
 
-     let datosEnvio;
-    console.log('formData antes de enviar:', formData);
+    // Preparar datos para enviar según si es creación o actualización
+    let datosEnvio;
+
     if (productoToEdit) {
-        // MODO ACTUALIZACIÓN - Solo envía los campos que el endpoint espera
-        datosEnvio = {
+      // MODO ACTUALIZACIÓN
+      datosEnvio = {
         nombre: formData.nombre,
         descripcion: formData.descripcion,
         precio: parseFloat(formData.precio),
         imagen_url: formData.imagen_url,
         receta_items: formData.receta_items.map(item => ({
-            id_receta_item: item.id_receta_item || 0, // Incluir ID si existe
-            insumo_id: item.insumo_id,
-            cantidad: item.cantidad
+          id_receta_item: item.id_receta_item || 0,
+          insumo_id: item.insumo_id,
+          cantidad: item.cantidad
         }))
-        };
+      };
     } else {
-        // MODO CREACIÓN - Envía todos los campos incluyendo categoria_id
-        datosEnvio = {
+      // MODO CREACIÓN
+      datosEnvio = {
         nombre: formData.nombre,
         descripcion: formData.descripcion,
         precio: parseFloat(formData.precio),
         imagen_url: formData.imagen_url,
         categoria_id: parseInt(formData.categoria_id),
         receta_items: formData.receta_items.map(item => ({
-            insumo_id: item.insumo_id,
-            cantidad: item.cantidad
+          insumo_id: item.insumo_id,
+          cantidad: item.cantidad
         }))
-        };
-    }
-    console.log('Datos a enviar:', datosEnvio);
-
-    // Si es edición, incluir los IDs de los items de receta existentes
-    if (productoToEdit && formData.receta_items.some(item => item.id_receta_item)) {
-      datosEnvio.receta_items = formData.receta_items.map(item => ({
-        id_receta_item: item.id_receta_item || 0,
-        insumo_id: item.insumo_id,
-        cantidad: item.cantidad
-      }));
+      };
     }
 
     await onSave(datosEnvio);
   };
 
-  const getNombreInsumo = (insumoId) => {
+  const getCostoInsumo = (insumoId) => {
     const insumo = insumos.find(i => i.id_insumo === insumoId);
-    return insumo ? insumo.nombre : 'Insumo no encontrado';
+    return insumo ? insumo.costo_promedio : 0;
   };
-
-  const getUnidadInsumo = (insumoId) => {
-    const insumo = insumos.find(i => i.id_insumo === insumoId);
-    return insumo ? insumo.unidad_clave : '';
-  };
-
-  console.log('insumos disponibles:', insumos); 
 
   return (
     <Dialog 
@@ -285,7 +362,8 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
       PaperProps={{
         sx: {
           borderRadius: 2,
-          bgcolor: colors.background.light
+          bgcolor: colors.background.light,
+          maxHeight: '90vh'
         }
       }}
     >
@@ -295,26 +373,26 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
-        }}>
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <RestaurantIcon />
-            <Typography variant="h6" component="div" fontWeight="bold">
+          <RestaurantIcon />
+          <Typography variant="h6" component="div" fontWeight="bold">
             {productoToEdit ? 'Editar Producto' : 'Nuevo Producto'}
-            </Typography>
+          </Typography>
         </Box>
         <IconButton 
-            onClick={onClose}
-            sx={{ color: colors.primary.contrastText }}
+          onClick={onClose}
+          sx={{ color: colors.primary.contrastText }}
         >
-            <CloseIcon />
+          <CloseIcon />
         </IconButton>
-        </DialogTitle>
+      </DialogTitle>
 
       <form onSubmit={handleSubmit}>
         <DialogContent sx={{ py: 3 }}>
           <Grid container spacing={3}>
             {/* Información Básica */}
-            <Grid size={{xs:12}}>
+            <Grid size={12}>
               <Typography variant="h6" sx={{ 
                 color: colors.primary.main,
                 mb: 2,
@@ -325,7 +403,7 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
               </Typography>
             </Grid>
 
-            <Grid size={{xs:12, md:6}}>
+            <Grid size={{xs: 12, md: 6}}>
               <TextField
                 fullWidth
                 label="Nombre del Producto"
@@ -334,17 +412,48 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
                 error={!!errors.nombre}
                 helperText={errors.nombre}
                 disabled={loading}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: colors.primary.light,
-                    },
-                  }
-                }}
               />
             </Grid>
 
-            <Grid size={{xs:12, md:6}}>
+            <Grid size={{xs: 12, md: 6}}>
+              <FormControl fullWidth error={!!errors.categoria_id} disabled={loading || loadingCategorias}>
+                <InputLabel>Categoría</InputLabel>
+                <Select
+                  value={formData.categoria_id}
+                  label="Categoría"
+                  onChange={(e) => handleInputChange('categoria_id', e.target.value)}
+                  startAdornment={loadingCategorias ? <CircularProgress size={20} /> : null}
+                >
+                  {categorias.map((categoria) => (
+                    <MenuItem key={categoria.id_categoria} value={categoria.id_categoria}>
+                      {categoria.nombre}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.categoria_id && (
+                  <Typography variant="caption" color="error">
+                    {errors.categoria_id}
+                  </Typography>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid size={12}>
+              <TextField
+                fullWidth
+                label="Descripción"
+                multiline
+                rows={3}
+                value={formData.descripcion}
+                onChange={(e) => handleInputChange('descripcion', e.target.value)}
+                error={!!errors.descripcion}
+                helperText={errors.descripcion}
+                disabled={loading}
+              />
+            </Grid>
+
+            {/* Precio con sugerencia */}
+            <Grid size={{xs: 12, md: 6}}>
               <TextField
                 fullWidth
                 label="Precio"
@@ -361,93 +470,112 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
                   )
                 }}
               />
-            </Grid>
-
-            <Grid size={{xs:12}}>
-              <TextField
-                fullWidth
-                label="Descripción"
-                multiline
-                rows={3}
-                value={formData.descripcion}
-                onChange={(e) => handleInputChange('descripcion', e.target.value)}
-                error={!!errors.descripcion}
-                helperText={errors.descripcion}
-                disabled={loading}
-              />
-            </Grid>
-
-            <Grid size={{xs:12, md:6}}>
-              <TextField
-                fullWidth
-                label="URL de Imagen"
-                value={formData.imagen_url}
-                onChange={(e) => handleInputChange('imagen_url', e.target.value)}
-                disabled={loading}
-              />
-            </Grid>
-            
-            {!productoToEdit && (
-            <Grid size={{xs:12, md:6}}>
-              <TextField
-                fullWidth
-                label="Categoría ID"
-                type="number"
-                value={formData.categoria_id}
-                onChange={(e) => handleInputChange('categoria_id', e.target.value)}
-                error={!!errors.categoria_id}
-                helperText={errors.categoria_id}
-                disabled={loading}
-              />
-            </Grid>
-            )}
-            {productoToEdit && formData.categoria_id && (
-                <Grid size={{ xs: 12, md: 6 }}>
-                    <TextField
-                    fullWidth
-                    label="Categoría (Actual)"
-                    value={`ID: ${formData.categoria_id}`}
-                    disabled
-                    helperText="La categoría no se puede modificar en edición"
-                    />
-                </Grid>
-            )}
-
-            {/* Receta */}
-            <Grid size={{xs:12}}>
-              <Divider sx={{ my: 2, borderColor: colors.border.light }} />
-              <Typography variant="h6" sx={{ 
-                color: colors.primary.main,
-                mb: 2,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1
-              }}>
-                <RestaurantIcon />
-                Receta del Producto
-              </Typography>
-
-              {formData.receta_items.length === 0 && (
-                <Alert 
-                  severity="info" 
-                  sx={{ 
-                    mb: 2,
-                    bgcolor: withAlpha(colors.status.info, '10'),
-                    border: `1px solid ${colors.status.info}${colors.alpha[20]}`
-                  }}
-                >
-                  Agrega los ingredientes que componen este producto
-                </Alert>
+              {precioSugerido > 0 && (
+                <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" color={colors.text.secondary}>
+                    Precio sugerido: ${precioSugerido.toFixed(2)}
+                  </Typography>
+                  <Button
+                    size="small"
+                    onClick={usarPrecioSugerido}
+                    sx={{
+                      color: colors.primary.main,
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    Usar
+                  </Button>
+                </Box>
               )}
+            </Grid>
 
-              {/* Lista de items de receta */}
-              {formData.receta_items.map((item, index) => (
+            {/* Imagen */}
+            <Grid size={{xs: 12, md: 6}}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+                ref={fileInputRef}
+              />
+              
+              <Button
+                fullWidth
+                variant="outlined"
+                component="span"
+                startIcon={uploadingImage ? <CircularProgress size={20} /> : <UploadIcon />}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading || uploadingImage}
+                sx={{
+                  height: '56px',
+                  borderColor: colors.border.main,
+                  color: colors.text.primary
+                }}
+              >
+                {uploadingImage ? 'Cargando...' : 'Subir Imagen'}
+              </Button>
+
+              {formData.imagen_url && (
+                <Card sx={{ mt: 2 }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={formData.imagen_url}
+                    alt="Vista previa"
+                    sx={{ objectFit: 'cover' }}
+                  />
+                </Card>
+              )}
+            </Grid>
+
+            
+          {/* Receta */}
+          <Grid size={12}>
+            <Divider sx={{ my: 2, borderColor: colors.border.light }} />
+            <Typography variant="h6" sx={{ 
+              color: colors.primary.main,
+              mb: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}>
+              <RestaurantIcon />
+              Receta del Producto
+              {precioSugerido > 0 && (
+                <Typography variant="body2" color={colors.text.secondary} sx={{ ml: 'auto' }}>
+                  Costo estimado: ${(precioSugerido / 2.5).toFixed(2)}
+                </Typography>
+              )}
+            </Typography>
+
+            {formData.receta_items.length === 0 && (
+              <Alert 
+                severity="info" 
+                sx={{ 
+                  mb: 2,
+                  bgcolor: withAlpha(colors.status.info, '10'),
+                  border: `1px solid ${colors.status.info}${colors.alpha[20]}`
+                }}
+              >
+                {productoToEdit 
+                  ? 'Este producto no tiene ingredientes en la receta'
+                  : 'Agrega los ingredientes que componen este producto'
+                }
+              </Alert>
+            )}
+
+            {/* Lista de items de receta - MODIFICADO PARA EDICIÓN */}
+            {formData.receta_items.map((item, index) => {
+              const costoInsumo = getCostoInsumo(item.insumo_id);
+              const costoItem = item.cantidad * costoInsumo;
+              
+              return (
                 <Box
                   key={index}
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1,
+                    gap: 2,
                     mb: 1,
                     p: 2,
                     bgcolor: colors.background.paper,
@@ -455,75 +583,122 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
                     border: `1px solid ${colors.border.light}`
                   }}
                 >
+                  {/* Información del insumo - Solo lectura */}
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="body1" fontWeight="bold" color={colors.text.primary}>
-                      {item.insumo_nombre || getNombreInsumo(item.insumo_id)}
+                      {item.insumo_nombre}
                     </Typography>
                     <Typography variant="body2" color={colors.text.secondary}>
-                      {item.cantidad} {item.unidad_clave || getUnidadInsumo(item.insumo_id)}
+                      {item.unidad_clave}
+                      {costoInsumo > 0 && (
+                        <span> • ${costoInsumo.toFixed(2)} c/u</span>
+                      )}
                     </Typography>
                   </Box>
-                  <IconButton
-                    size="small"
-                    onClick={() => eliminarItemReceta(index)}
-                    disabled={loading}
-                    sx={{
-                      color: colors.status.error,
-                      '&:hover': {
-                        bgcolor: withAlpha(colors.status.error, '10')
-                      }
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              ))}
 
-              {/* Agregar nuevo item */}
-                <Box sx={{ 
+                  {/* Campo de cantidad - EDITABLE */}
+                  <TextField
+                    size="small"
+                    label="Cantidad"
+                    type="number"
+                    step="0.01"
+                    value={item.cantidad}
+                    onChange={(e) => {
+                      const nuevosItems = [...formData.receta_items];
+                      nuevosItems[index] = {
+                        ...nuevosItems[index],
+                        cantidad: parseFloat(e.target.value) || 0
+                      };
+                      setFormData(prev => ({
+                        ...prev,
+                        receta_items: nuevosItems
+                      }));
+                    }}
+                    disabled={loading}
+                    sx={{ width: 120 }}
+                    InputProps={{
+                      endAdornment: (
+                        <Typography variant="caption" color={colors.text.secondary}>
+                          {item.unidad_clave}
+                        </Typography>
+                      )
+                    }}
+                  />
+
+                  {/* Costo del item */}
+                  {costoInsumo > 0 && (
+                    <Typography variant="body2" color={colors.text.secondary} sx={{ minWidth: 80 }}>
+                      ${costoItem.toFixed(2)}
+                    </Typography>
+                  )}
+
+                  {/* Botón eliminar - SOLO en creación */}
+                  {!productoToEdit && (
+                    <IconButton
+                      size="small"
+                      onClick={() => eliminarItemReceta(index)}
+                      disabled={loading}
+                      sx={{
+                        color: colors.status.error,
+                        '&:hover': {
+                          bgcolor: withAlpha(colors.status.error, '10')
+                        }
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
+                </Box>
+              );
+            })}
+
+            {/* SECCIÓN PARA AGREGAR NUEVOS INSUMOS - SOLO EN CREACIÓN */}
+            {!productoToEdit && (
+              <Box sx={{ 
                 p: 2, 
                 bgcolor: colors.background.paper,
                 borderRadius: 1,
                 border: `1px dashed ${colors.border.main}`
-                }}>
+              }}>
                 {loadingInsumos ? (
-                    <Box sx={{ textAlign: 'center', py: 2 }}>
+                  <Box sx={{ textAlign: 'center', py: 2 }}>
                     <CircularProgress size={24} sx={{ color: colors.primary.main }} />
                     <Typography variant="body2" color={colors.text.secondary} sx={{ mt: 1 }}>
-                        Cargando insumos...
+                      Cargando insumos...
                     </Typography>
-                    </Box>
+                  </Box>
                 ) : insumos.length === 0 ? (
-                    <Alert 
+                  <Alert 
                     severity="warning"
                     sx={{ 
-                        bgcolor: withAlpha(colors.status.warning, '10'),
-                        border: `1px solid ${colors.status.warning}${colors.alpha[20]}`
+                      bgcolor: withAlpha(colors.status.warning, '10'),
+                      border: `1px solid ${colors.status.warning}${colors.alpha[20]}`
                     }}
-                    >
+                  >
                     No hay insumos disponibles. Verifica que tengas insumos activos en la sucursal.
-                    </Alert>
+                  </Alert>
                 ) : (
-                    <Grid container spacing={2} alignItems="center">
-                    <Grid size={{xs:12, md:6}}>
-                        <FormControl fullWidth size="small">
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid size={{xs:12, md:5}}>
+                      <FormControl fullWidth size="small">
                         <InputLabel>Insumo</InputLabel>
                         <Select
-                            value={nuevoItem.insumo_id}
-                            label="Insumo"
-                            onChange={(e) => handleNuevoItemChange('insumo_id', e.target.value)}
-                            disabled={loading}
+                          value={nuevoItem.insumo_id}
+                          label="Insumo"
+                          onChange={(e) => handleNuevoItemChange('insumo_id', e.target.value)}
+                          disabled={loading}
                         >
-                            {insumos.map((insumo) => (
+                          {insumos.map((insumo) => (
                             <MenuItem key={insumo.id_insumo} value={insumo.id_insumo}>
-                                {insumo.nombre} ({insumo.unidad_clave})
+                              {insumo.nombre} ({insumo.unidad_clave})
+                              {insumo.costo_promedio > 0 && ` - $${insumo.costo_promedio.toFixed(2)}`}
                             </MenuItem>
-                            ))}
+                          ))}
                         </Select>
-                        </FormControl>
+                      </FormControl>
                     </Grid>
-                    <Grid size={{xs:12, md:4}}>
-                        <TextField
+                    <Grid size={{xs:12, md:3}}>
+                      <TextField
                         fullWidth
                         size="small"
                         label="Cantidad"
@@ -532,30 +707,31 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
                         value={nuevoItem.cantidad}
                         onChange={(e) => handleNuevoItemChange('cantidad', e.target.value)}
                         disabled={loading}
-                        />
+                      />
                     </Grid>
-                    <Grid item xs={12} md={2}>
-                        <Button
+                    <Grid size={{xs:12, md:4}} >
+                      <Button
                         fullWidth
                         variant="contained"
                         startIcon={<AddIcon />}
                         onClick={agregarItemReceta}
                         disabled={loading || !nuevoItem.insumo_id || !nuevoItem.cantidad}
                         sx={{
-                            bgcolor: colors.secondary.main,
-                            color: colors.secondary.contrastText,
-                            '&:hover': {
+                          bgcolor: colors.secondary.main,
+                          color: colors.secondary.contrastText,
+                          '&:hover': {
                             bgcolor: colors.secondary.dark
-                            }
+                          }
                         }}
-                        >
+                      >
                         Agregar
-                        </Button>
+                      </Button>
                     </Grid>
-                    </Grid>
+                  </Grid>
                 )}
-                </Box>
-            </Grid>
+              </Box>
+            )}
+          </Grid>
           </Grid>
         </DialogContent>
 

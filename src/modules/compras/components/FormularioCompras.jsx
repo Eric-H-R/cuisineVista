@@ -123,19 +123,14 @@ const FormularioCompras = ({ open, onClose, onSave, loading, sucursalId }) => {
   };
 
   const handleSubmit = (event) => {
-    // Prevenir el comportamiento por defecto del formulario
     if (event) {
       event.preventDefault();
     }
 
-    console.log('Intentando enviar formulario...', formData);
-
     // Validar formulario
     const validation = validateCompraForm(formData);
-    console.log('Resultado validación:', validation);
     
     if (!validation.isValid) {
-      console.log('Errores de validación:', validation.errors);
       setFormErrors(validation.errors);
       return;
     }
@@ -151,22 +146,18 @@ const FormularioCompras = ({ open, onClose, onSave, loading, sucursalId }) => {
       }))
     };
 
-    console.log('Datos a enviar:', datosParaEnviar);
     onSave(datosParaEnviar);
   };
 
-  // Verificar si el formulario es válido (más simple)
+  // Verificar si el formulario es válido
   const isFormValid = () => {
-    console.log('Validando formulario...', formData);
 
     // Validación básica
     if (!formData.proveedor_id || formData.proveedor_id === '') {
-      console.log('Falta proveedor');
       return false;
     }
 
     if (!formData.detalles || formData.detalles.length === 0) {
-      console.log('No hay detalles');
       return false;
     }
 
@@ -184,15 +175,8 @@ const FormularioCompras = ({ open, onClose, onSave, loading, sucursalId }) => {
         detalle.presentacion && 
         detalle.presentacion.trim().length > 0;
 
-      if (!valido) {
-        console.log(`Detalle ${index} inválido:`, detalle);
-      }
-
       return valido;
     });
-
-    console.log('Detalles válidos:', detallesValidos);
-    console.log('Formulario válido:', detallesValidos);
     return detallesValidos;
   };
 

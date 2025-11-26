@@ -59,7 +59,6 @@ const Productos = () => {
       setLoading(false);
     }
   };
-  console.log('productos: ', productos)
   const handleNewProducto = (producto = null) => {
     setProductoToEdit(producto);
     setOpenModal(true);
