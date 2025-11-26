@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useAuth } from "../../../context/AuthContext"
 import { useEffect } from "react";
 import MesasService from "../services/MesasService";
-import { Box, Card, Typography } from "@mui/material";
+import { Box, Card, Typography, CardContent } from "@mui/material";
+import colors from "../../../theme/colores";
 
 
 const IndicadoresMesas = () => {
@@ -52,17 +53,22 @@ const IndicadoresMesas = () => {
         },
     ];
 
-    const numberColors = ['#2E7D32', '#1976D2', '#D32F2F'];
+    const numberColors = [colors.accent.main, colors.accent.main, colors.accent.main];
     return (
-       <Box sx={{ display: 'flex', gap: 2, mt:4 }}>
+       <Box mt={4} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%' }}>
         {MesasCardData.map((card, index) => (
-          <Card key={index} sx={{ flex: 1, textAlign: 'center', padding: 2 }}>
-            <Typography variant="h6" gutterBottom>
-                {card.title}
-            </Typography>
-            <Typography variant="h4" style={{ color: numberColors[index] }}>
+          <Card key={index}
+             elevation={0} 
+            sx={{ borderRadius: 4, width: '35%', boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',  background: 'linear-gradient(to bottom, #ce8c4e10 0%, #ede0d436 100%)'}}
+            >
+                <CardContent sx={{ height: '100%', textAlign: 'center' }}>
+            <Typography variant="h4" component="div" sx={{ color: numberColors[index] }}>
                 {card.value}
             </Typography>
+            <Typography variant="body1" color="text.secondary">
+                {card.title}
+            </Typography>
+            </CardContent>
             </Card>
         ))}
       </Box>

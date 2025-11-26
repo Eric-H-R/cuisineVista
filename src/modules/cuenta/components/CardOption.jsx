@@ -61,7 +61,7 @@ const CardOption = ({ onEditProfile, onChangePassword, onViewInfo, user }) => {
                     position: 'relative'
                 }}
             >
-                {/* Efecto de acento de color sutil - ESTE ES EL BORDE TOP */}
+                {/* BORDE TOP */}
                 <Box 
                     sx={{
                         position: 'absolute',

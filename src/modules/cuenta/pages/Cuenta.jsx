@@ -54,12 +54,12 @@ const Cuenta = () => {
 
     const [user, setUser] = useState(null);
 
-    // edit profile dialog
+    // edit 
     const [openEdit, setOpenEdit] = useState(false);
     const [editLoading, setEditLoading] = useState(false);
     const [editValues, setEditValues] = useState({ nombre: '', apellido: '', email: '' });
 
-    // change password dialog
+    // change 
     const [openPassword, setOpenPassword] = useState(false);
     const [pwValues, setPwValues] = useState({ current_password: '', new_password: '' });
     const [pwLoading, setPwLoading] = useState(false);

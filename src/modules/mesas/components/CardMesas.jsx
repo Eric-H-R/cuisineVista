@@ -17,7 +17,11 @@ import {
   CircularProgress,
   Paper,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  ToggleButton,
+  ToggleButtonGroup,
+  Stack,
+  Tooltip
 } from "@mui/material";
 import { useAuth } from "../../../context/AuthContext";
 import { useEffect, useState } from "react";
@@ -30,14 +34,36 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
 import CloseIcon from '@mui/icons-material/Close';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import { toast } from "react-toastify";
 import ConfirmDialog from "../../../components/Common/ConfirmDialog";
+import colors from "../../../theme/colores";
+
+// Hook personalizado para manejar la vista
+const useViewMode = () => {
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'list'
+
+  const handleViewModeChange = (event, newViewMode) => {
+    if (newViewMode !== null) {
+      setViewMode(newViewMode);
+    }
+  };
+
+  return {
+    viewMode,
+    handleViewModeChange
+  };
+};
 
 const CardMesas = () => {
   const { sucursal } = useAuth();
   const [mesas, setMesas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingActions, setLoadingActions] = useState({});
+
+  // Usar el hook de vista
+  const { viewMode, handleViewModeChange } = useViewMode();
 
   // Estados para edición
   const [editingMesa, setEditingMesa] = useState(null);
@@ -54,14 +80,13 @@ const CardMesas = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [mesaToDelete, setMesaToDelete] = useState(null);
 
-  const colors = {
-    primary: '#588157',
-    secondary: '#A3B18A',
-    accent: '#57300D',
-    background: '#F8F9FA',
-    paper: '#EDE0D4',
-    text: '#333333'
-  };
+  // Estados para áreas y filtros
+  const [areas, setAreas] = useState([]);
+  const [selectedArea, setSelectedArea] = useState('');
+  const [soloActivas, setSoloActivas] = useState(false);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -105,14 +130,6 @@ const CardMesas = () => {
     loadInitialData();
   }, [sucursal]);
 
-  // Nuevo estado: áreas y filtros
-  const [areas, setAreas] = useState([]);
-  const [selectedArea, setSelectedArea] = useState('');
-  const [soloActivas, setSoloActivas] = useState(false);
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   // Refetch cuando cambian filtros
   useEffect(() => {
     const fetchWithFilters = async () => {
@@ -138,7 +155,6 @@ const CardMesas = () => {
       }
     };
 
-    // Only fetch when sucursal is set or filters change
     fetchWithFilters();
   }, [sucursal, selectedArea, soloActivas]);
 
@@ -170,7 +186,6 @@ const CardMesas = () => {
 
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
-    // Solo actualizamos la capacidad según la API
     if (mesaEditada.capacidad === '' || mesaEditada.capacidad === null) {
       setEditError('La capacidad es requerida');
       return;
@@ -235,6 +250,268 @@ const CardMesas = () => {
       handleCloseDeleteDialog();
     }
   };
+
+  // Componente para la card en vista de cuadrícula
+  const GridCard = ({ mesa }) => (
+    <Card 
+      elevation={0}
+      sx={{ 
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2,
+        backgroundColor: 'white',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+          borderColor: 'primary.main',
+          backgroundColor: 'action.hover'
+        }
+      }}
+    >
+      <CardContent sx={{ flexGrow: 1, p: 3, pb: 2 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+          <Typography 
+            variant="h6" 
+            component="h2"
+            sx={{ 
+              fontWeight: '400',
+              color: 'text.primary'
+            }}
+          >
+            {mesa.nombre}
+          </Typography>
+          <Chip 
+            label={mesa.es_activa ? "Activa" : "Inactiva"} 
+            size="small"
+            variant="outlined"
+            color={mesa.es_activa ? "primary" : "default"}
+            sx={{ 
+              fontSize: '0.7rem',
+              height: 24
+            }}
+          />
+        </Box>
+
+        <Typography 
+          variant="body2" 
+          color="text.secondary" 
+          sx={{ 
+            mb: 2,
+            minHeight: '40px',
+            lineHeight: 1.4
+          }}
+        >
+          {mesa.descripcion || "Sin descripción"}
+        </Typography>
+
+        <Box sx={{ mt: 'auto' }}>
+          <Typography variant="caption" color="textSecondary" display="block">ID: {mesa.id_mesa}</Typography>
+          <Typography variant="caption" color="textSecondary" display="block">Capacidad: {mesa.capacidad ?? '-'}</Typography>
+          <Typography variant="caption" color="textSecondary" display="block">Creado: {mesa.created_at ? new Date(mesa.created_at).toLocaleDateString() : '-'}</Typography>
+        </Box>
+      </CardContent>
+
+      <Box sx={{ 
+        p: 2, 
+        pt: 0, 
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <Typography variant="caption" color="text.secondary">
+          ID: {mesa.id_mesa}
+        </Typography>
+        
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Tooltip title={mesa.es_activa ? "Desactivar" : "Activar"}>
+            <IconButton
+              onClick={() => handleToggleStatus(mesa.id, mesa.es_activa)}
+              disabled={loadingActions[mesa.id]}
+              size="small"
+              sx={{ 
+                color: mesa.es_activa ? 'primary.main' : 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }}
+            >
+              {loadingActions[mesa.id] ? (
+                <CircularProgress size={20} />
+              ) : mesa.es_activa ? (
+                <ToggleOnIcon />
+              ) : (
+                <ToggleOffIcon />
+              )}
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Editar">
+            <IconButton
+              onClick={() => handleEdit(mesa)}
+              disabled={loadingActions[mesa.id]}
+              size="small"
+              sx={{ 
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  color: 'primary.main'
+                }
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Eliminar">
+            <IconButton
+              onClick={() => handleOpenDeleteDialog(mesa.id)}
+              disabled={loadingActions[mesa.id]}
+              size="small"
+              sx={{ 
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  color: 'error.main'
+                }
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Box>
+    </Card>
+  );
+
+  // Componente para el item en vista de lista
+  const ListItem = ({ mesa }) => (
+    <Card 
+      elevation={0}
+      sx={{ 
+        display: 'flex',
+        alignItems: 'center',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2,
+        backgroundColor: 'white',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+          borderColor: 'primary.main',
+          backgroundColor: 'action.hover'
+        },
+        mb: 1
+      }}
+    >
+      <CardContent sx={{ flexGrow: 1, p: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
+        <Box sx={{ flex: 1 }}>
+          <Box display="flex" alignItems="center" gap={2} mb={1}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontWeight: '400',
+                color: 'text.primary'
+              }}
+            >
+              {mesa.nombre}
+            </Typography>
+            <Chip 
+              label={mesa.es_activa ? "Activa" : "Inactiva"} 
+              size="small"
+              variant="outlined"
+              color={mesa.es_activa ? "primary" : "default"}
+              sx={{ 
+                fontSize: '0.7rem',
+                height: 24
+              }}
+            />
+          </Box>
+          
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ 
+              lineHeight: 1.4,
+              mb: 1
+            }}
+          >
+            {mesa.descripcion || "Sin descripción"}
+          </Typography>
+          
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Typography variant="caption" color="text.secondary">
+              ID: {mesa.id_mesa}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Capacidad: {mesa.capacidad ?? '-'}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Creado: {mesa.created_at ? new Date(mesa.created_at).toLocaleDateString() : '-'}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Tooltip title={mesa.es_activa ? "Desactivar" : "Activar"}>
+            <IconButton
+              onClick={() => handleToggleStatus(mesa.id, mesa.es_activa)}
+              disabled={loadingActions[mesa.id]}
+              size="small"
+              sx={{ 
+                color: mesa.es_activa ? 'primary.main' : 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'action.hover'
+                }
+              }}
+            >
+              {loadingActions[mesa.id] ? (
+                <CircularProgress size={20} />
+              ) : mesa.es_activa ? (
+                <ToggleOnIcon />
+              ) : (
+                <ToggleOffIcon />
+              )}
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Editar">
+            <IconButton
+              onClick={() => handleEdit(mesa)}
+              disabled={loadingActions[mesa.id]}
+              size="small"
+              sx={{ 
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  color: 'primary.main'
+                }
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Eliminar">
+            <IconButton
+              onClick={() => handleOpenDeleteDialog(mesa.id)}
+              disabled={loadingActions[mesa.id]}
+              size="small"
+              sx={{ 
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  color: 'error.main'
+                }
+              }}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </CardContent>
+    </Card>
+  );
 
   if (loading) {
     return (
@@ -334,97 +611,80 @@ const CardMesas = () => {
         </Box>
       </Dialog>
 
-      {/* Filtros: Área y Solo Activas (estilo similar a BarraBusqueda) */}
-      <Paper
-        elevation={1}
-        sx={{
-          p: 2,
-          mb: 3,
-          borderRadius: 2,
-          backgroundColor: 'background.paper'
-        }}
-      >
-        <Box sx={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? 2 : 2,
-          alignItems: isMobile ? 'stretch' : 'center'
-        }}>
-          <FormControl size="small" sx={{ minWidth: 220, mr: isMobile ? 0 : 2 }}>
-            <InputLabel id="select-area-label">Área</InputLabel>
-            <Select
-              labelId="select-area-label"
-              value={selectedArea}
-              label="Área"
-              onChange={(e) => setSelectedArea(e.target.value)}
-              sx={{
-                borderRadius: 2,
-                backgroundColor: 'background.default',
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'transparent'
-                },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'primary.main'
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'primary.main'
-                }
-              }}
-            >
-              <MenuItem value="">Todas las áreas</MenuItem>
-              {areas.map(area => (
-                <MenuItem key={area.id_area || area.id} value={area.id_area || area.id}>{area.nombre}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+      {/* Filtros y controles de vista */}
+      
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, mt:2,  p:2 }}>
+          
+            <Typography variant="h5" fontWeight="500">
+                    Selecciona una área
+                </Typography>
+            <FormControl size="small"  fullWidth sx={{ maxWidth: isMobile ? '100%' : 340 }}>
+              <InputLabel id="select-area-label">Área</InputLabel>
+              <Select
+                labelId="select-area-label"
+                value={selectedArea}
+                label="Área"
+                onChange={(e) => setSelectedArea(e.target.value)}
+                sx={{
+                  borderRadius: 2,
+                  backgroundColor: colors.background,
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: colors.primary
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: colors.primary
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: colors.primary
+                  }
+                }}
+              >
+                <MenuItem value="">Todas las áreas</MenuItem>
+                {areas.map(area => (
+                  <MenuItem key={area.id_area || area.id} value={area.id_area || area.id}>{area.nombre}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+         
 
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <FormControlLabel
-              control={<Switch checked={soloActivas} onChange={(e) => setSoloActivas(e.target.checked)} />}
-              label="Solo activas"
-            />
-          </Box>
+          {/* Controles de vista */}
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={handleViewModeChange}
+            aria-label="modo de vista"
+            size="small"
+          >
+            <ToggleButton value="grid" aria-label="vista cuadrícula">
+              <GridViewIcon />
+            </ToggleButton>
+            <ToggleButton value="list" aria-label="vista lista">
+              <ViewListIcon />
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Box>
-      </Paper>
+   
 
-      <Box mt={4}>
+      {/* Contenido según el modo de vista */}
+      <Box mt={2} sx={{background: 'linear-gradient(to bottom, #ce8c4e10 0%, #ede0d40c 10%)', p:2, borderRadius:2, border:'1px solid', borderColor:'divider'}}>
         {mesas.length === 0 ? (
-          <Typography variant="h6" textAlign="center" color="textSecondary">No hay mesas registradas para esta sucursal</Typography>
-        ) : (
+          <Typography variant="body1" textAlign="center" color="text.secondary" sx={{ py: 8 }}>
+            No hay mesas registradas
+          </Typography>
+        ) : viewMode === 'grid' ? (
           <Grid container spacing={2}>
             {mesas.map(mesa => (
               <Grid size={{xs: 12, sm: 6, md: 4}} key={mesa.id_mesa}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)' } }}>
-                  <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                      <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>{mesa.nombre}</Typography>
-                      <Chip label={mesa.es_activa ? 'Activa' : 'Inactiva'} color={mesa.es_activa ? 'success' : 'default'} size="small" variant={mesa.es_activa ? 'filled' : 'outlined'} />
-                    </Box>
-
-                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2, minHeight: '40px' }}>{mesa.descripcion || 'Sin descripción'}</Typography>
-
-                    <Box sx={{ mt: 'auto' }}>
-                      <Typography variant="caption" color="textSecondary" display="block">ID: {mesa.id_mesa}</Typography>
-                      <Typography variant="caption" color="textSecondary" display="block">Capacidad: {mesa.capacidad ?? '-'}</Typography>
-                      <Typography variant="caption" color="textSecondary" display="block">Creado: {mesa.created_at ? new Date(mesa.created_at).toLocaleDateString() : '-'}</Typography>
-                    </Box>
-                  </CardContent>
-
-                  <CardActions sx={{ p: 2, pt: 0, justifyContent: 'space-between', borderTop: '1px solid', borderColor: 'divider' }}>
-                    <Box>
-                      <IconButton onClick={() => handleToggleStatus(mesa.id, mesa.es_activa)} disabled={loadingActions[mesa.id]} color={mesa.es_activa ? 'success' : 'default'} size="small" title={mesa.es_activa ? 'Desactivar mesa' : 'Activar mesa'}>
-                        {loadingActions[mesa.id] ? <Box width={24} height={24} /> : mesa.es_activa ? <ToggleOnIcon /> : <ToggleOffIcon />}
-                      </IconButton>
-
-                      <IconButton onClick={() => handleEdit(mesa)} disabled={loadingActions[mesa.id]} color="primary" size="small" title="Editar mesa"><EditIcon /></IconButton>
-                    </Box>
-
-                    <Button onClick={() => handleOpenDeleteDialog(mesa.id)} disabled={loadingActions[mesa.id]} color="error" size="small" startIcon={<DeleteIcon />} variant="outlined">Eliminar</Button>
-                  </CardActions>
-                </Card>
+                <GridCard mesa={mesa} />
               </Grid>
             ))}
           </Grid>
+        ) : (
+          <Stack spacing={1}>
+            {mesas.map(mesa => (
+              <ListItem key={mesa.id_mesa} mesa={mesa} />
+            ))}
+          </Stack>
         )}
       </Box>
     </>

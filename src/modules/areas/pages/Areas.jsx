@@ -18,7 +18,7 @@ const Areas = () => {
               Administración de áreas del restaurante
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2, mt:1 }}>
            <BasicModal />
           </Box>
         </Box>

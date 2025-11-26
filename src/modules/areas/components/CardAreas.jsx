@@ -5,16 +5,19 @@ import {
   Grid, 
   Card, 
   CardContent, 
-  CardActions, 
-  Button,
-  Chip,
   IconButton, 
   Dialog,
   DialogTitle,
   Avatar,
   TextField,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Chip,
+  Switch,
+  Tooltip,
+  ToggleButton,
+  ToggleButtonGroup,
+  Stack
 } from "@mui/material";
 import { useAuth } from "../../../context/AuthContext";
 import { useEffect, useState } from "react";
@@ -22,17 +25,38 @@ import { AreasServices } from "../services/AreasServices";
 import LoadingComponent from "../../../components/Loadings/LoadingComponent";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CloseIcon from '@mui/icons-material/Close';
 import ToggleOnIcon from '@mui/icons-material/ToggleOn';
 import ToggleOffIcon from '@mui/icons-material/ToggleOff';
-import CloseIcon from '@mui/icons-material/Close';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import { toast } from "react-toastify";
 import ConfirmDialog from "../../../components/Common/ConfirmDialog";
+
+// Hook personalizado para manejar la vista
+const useViewMode = () => {
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' o 'list'
+
+  const handleViewModeChange = (event, newViewMode) => {
+    if (newViewMode !== null) {
+      setViewMode(newViewMode);
+    }
+  };
+
+  return {
+    viewMode,
+    handleViewModeChange
+  };
+};
 
 const CardAreas = () => {
     const { sucursal } = useAuth();
     const [areas, setAreas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [loadingActions, setLoadingActions] = useState({});
+    
+    // Usar el hook de vista
+    const { viewMode, handleViewModeChange } = useViewMode();
     
     // Estados para el modal de edición
     const [editingArea, setEditingArea] = useState(null);
@@ -43,7 +67,6 @@ const CardAreas = () => {
     });
     const [editLoading, setEditLoading] = useState(false);
     const [editError, setEditError] = useState('');
-
 
     // Estados para la eliminación 
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -142,7 +165,6 @@ const CardAreas = () => {
             
             handleCloseEdit();
         } catch (error) {
-            
             setEditError('Error actualizando el área');
             toast.error('Error actualizando el área');
         } finally {
@@ -169,45 +191,44 @@ const CardAreas = () => {
             
             toast.success(`Área ${newStatus ? 'activada' : 'desactivada'} correctamente`);
         } catch (error) {
-            
             toast.error("Error actualizando el estado del área");
         } finally {
             setLoadingActions(prev => ({ ...prev, [areaId]: false }));
         }
     };
 
-   // Función para abrir el diálogo de confirmación
-const handleOpenDeleteDialog = (areaId) => {
-    setAreaToDelete(areaId);
-    setDeleteDialogOpen(true);
-};
+    // Función para abrir el diálogo de confirmación
+    const handleOpenDeleteDialog = (areaId) => {
+        setAreaToDelete(areaId);
+        setDeleteDialogOpen(true);
+    };
 
-// Función para cerrar el diálogo de confirmación
-const handleCloseDeleteDialog = () => {
-    setDeleteDialogOpen(false);
-    setAreaToDelete(null);
-};
+    // Función para cerrar el diálogo de confirmación
+    const handleCloseDeleteDialog = () => {
+        setDeleteDialogOpen(false);
+        setAreaToDelete(null);
+    };
 
-// Función para eliminar área
-const handleDelete = async () => {
-    if (!areaToDelete) return;
+    // Función para eliminar área
+    const handleDelete = async () => {
+        if (!areaToDelete) return;
 
-    setLoadingActions(prev => ({ ...prev, [areaToDelete]: true }));
-    
-    try {
-        await AreasServices.delete(areaToDelete);
+        setLoadingActions(prev => ({ ...prev, [areaToDelete]: true }));
         
-        // Remover del estado local
-        setAreas(prevAreas => prevAreas.filter(area => area.id_area !== areaToDelete));
-        toast.success('Área eliminada correctamente');
-    } catch (error) {
-        console.error("Error eliminando área:", error);
-        toast.error("Error eliminando el área");
-    } finally {
-        setLoadingActions(prev => ({ ...prev, [areaToDelete]: false }));
-        handleCloseDeleteDialog();
-    }
-};
+        try {
+            await AreasServices.delete(areaToDelete);
+            
+            // Remover del estado local
+            setAreas(prevAreas => prevAreas.filter(area => area.id_area !== areaToDelete));
+            toast.success('Área eliminada correctamente');
+        } catch (error) {
+            console.error("Error eliminando área:", error);
+            toast.error("Error eliminando el área");
+        } finally {
+            setLoadingActions(prev => ({ ...prev, [areaToDelete]: false }));
+            handleCloseDeleteDialog();
+        }
+    };
 
     if (loading) {
         return (
@@ -219,117 +240,326 @@ const handleDelete = async () => {
         );
     }
 
+    // Componente para la card en vista de cuadrícula
+    const GridCard = ({ area }) => (
+        <Card 
+            elevation={0}
+            sx={{ 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                background: 'white',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                    borderColor: 'primary.main',
+                    backgroundColor: 'action.hover'
+                }
+            }}
+        >
+            <CardContent sx={{ flexGrow: 1, p: 3, pb: 2 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                    <Typography 
+                        variant="h6" 
+                        component="h2"
+                        sx={{ 
+                            fontWeight: '400',
+                            color: 'text.primary'
+                        }}
+                    >
+                        {area.nombre}
+                    </Typography>
+                    <Chip 
+                        label={area.es_activa ? "Activa" : "Inactiva"} 
+                        size="small"
+                        variant="outlined"
+                        color={area.es_activa ? "primary" : "default"}
+                        sx={{ 
+                            fontSize: '0.7rem',
+                            height: 24
+                        }}
+                    />
+                </Box>
+
+                <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    sx={{ 
+                        mb: 2,
+                        minHeight: '40px',
+                        lineHeight: 1.4
+                    }}
+                >
+                    {area.descripcion || "Sin descripción"}
+                </Typography>
+            </CardContent>
+
+            <Box sx={{ 
+                p: 2, 
+                pt: 0, 
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
+                <Typography variant="caption" color="text.secondary">
+                    ID: {area.id_area}
+                </Typography>
+                
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Tooltip title={area.es_activa ? "Desactivar" : "Activar"}>
+                        <IconButton
+                            onClick={() => handleToggleStatus(area.id_area, area.es_activa)}
+                            disabled={loadingActions[area.id_area]}
+                            size="small"
+                            sx={{ 
+                                color: area.es_activa ? 'primary.main' : 'text.secondary',
+                                '&:hover': {
+                                    backgroundColor: 'action.hover'
+                                }
+                            }}
+                        >
+                            {loadingActions[area.id_area] ? (
+                                <CircularProgress size={20} />
+                            ) : area.es_activa ? (
+                                <ToggleOnIcon />
+                            ) : (
+                                <ToggleOffIcon />
+                            )}
+                        </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Editar">
+                        <IconButton
+                            onClick={() => handleEdit(area)}
+                            disabled={loadingActions[area.id_area]}
+                            size="small"
+                            sx={{ 
+                                color: 'text.secondary',
+                                '&:hover': {
+                                    backgroundColor: 'action.hover',
+                                    color: 'primary.main'
+                                }
+                            }}
+                        >
+                            <EditIcon />
+                        </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Eliminar">
+                        <IconButton
+                            onClick={() => handleOpenDeleteDialog(area.id_area)}
+                            disabled={loadingActions[area.id_area]}
+                            size="small"
+                            sx={{ 
+                                color: 'text.secondary',
+                                '&:hover': {
+                                    backgroundColor: 'action.hover',
+                                    color: 'error.main'
+                                }
+                            }}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </Box>
+        </Card>
+    );
+
+    // Componente para el item en vista de lista
+    const ListItem = ({ area }) => (
+        <Card 
+            elevation={0}
+            sx={{ 
+                display: 'flex',
+                alignItems: 'center',
+                border: '1px solid',
+                borderColor: 'primary.light',
+                borderRadius: 2,
+                backgroundColor: 'white',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                    borderColor: 'primary.main',
+                    backgroundColor: 'action.hover'
+                },
+                mb: 1
+            }}
+        >
+            <CardContent sx={{ flexGrow: 1, p: 3, display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Box sx={{ flex: 1 }}>
+                    <Box display="flex" alignItems="center" gap={2} mb={1}>
+                        <Typography 
+                            variant="h6" 
+                            sx={{ 
+                                fontWeight: '400',
+                                color: 'text.primary'
+                            }}
+                        >
+                            {area.nombre}
+                        </Typography>
+                        <Chip 
+                            label={area.es_activa ? "Activa" : "Inactiva"} 
+                            size="small"
+                            variant="outlined"
+                            color={area.es_activa ? "primary" : "default"}
+                            sx={{ 
+                                fontSize: '0.7rem',
+                                height: 24
+                            }}
+                        />
+                    </Box>
+                    
+                    <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ 
+                            lineHeight: 1.4,
+                            mb: 1
+                        }}
+                    >
+                        {area.descripcion || "Sin descripción"}
+                    </Typography>
+                    
+                    <Typography variant="caption" color="text.secondary">
+                        ID: {area.id_area}
+                    </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Tooltip title={area.es_activa ? "Desactivar" : "Activar"}>
+                        <IconButton
+                            onClick={() => handleToggleStatus(area.id_area, area.es_activa)}
+                            disabled={loadingActions[area.id_area]}
+                            size="small"
+                            sx={{ 
+                                color: area.es_activa ? 'primary.main' : 'text.secondary',
+                                '&:hover': {
+                                    backgroundColor: 'action.hover'
+                                }
+                            }}
+                        >
+                            {loadingActions[area.id_area] ? (
+                                <CircularProgress size={20} />
+                            ) : area.es_activa ? (
+                                <ToggleOnIcon />
+                            ) : (
+                                <ToggleOffIcon />
+                            )}
+                        </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Editar">
+                        <IconButton
+                            onClick={() => handleEdit(area)}
+                            disabled={loadingActions[area.id_area]}
+                            size="small"
+                            sx={{ 
+                                color: 'text.secondary',
+                                '&:hover': {
+                                    backgroundColor: 'action.hover',
+                                    color: 'primary.main'
+                                }
+                            }}
+                        >
+                            <EditIcon />
+                        </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Eliminar">
+                        <IconButton
+                            onClick={() => handleOpenDeleteDialog(area.id_area)}
+                            disabled={loadingActions[area.id_area]}
+                            size="small"
+                            sx={{ 
+                                color: 'text.secondary',
+                                '&:hover': {
+                                    backgroundColor: 'action.hover',
+                                    color: 'error.main'
+                                }
+                            }}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </CardContent>
+        </Card>
+    );
+
     return (
         <>
+            <ConfirmDialog
+                open={deleteDialogOpen}
+                onClose={handleCloseDeleteDialog}
+                onConfirm={handleDelete}
+                title="Eliminar Área"
+                message="¿Estás seguro de que deseas eliminar esta área? Esta acción no se puede deshacer."
+            />
 
-        {/* Diálogo de Confirmación para Eliminar Área */}
-                <ConfirmDialog
-                    open={deleteDialogOpen}
-                    onClose={handleCloseDeleteDialog}
-                    onConfirm={handleDelete}
-                    title="Eliminar Área"
-                    message="¿Estás seguro de que deseas eliminar esta área? Esta acción no se puede deshacer."
-                />
             {/* Modal de Edición */}
             <Dialog 
                 open={!!editingArea} 
                 onClose={handleCloseEdit}
-                maxWidth="md"
+                maxWidth="sm"
                 fullWidth
                 PaperProps={{
                     sx: {
-                        borderRadius: 3,
-                        boxShadow: '0 10px 40px rgba(88, 129, 87, 0.2)',
-                        border: `1px solid ${colors.primary}20`
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        boxShadow: 'none'
                     }
                 }}
             >
                 <DialogTitle sx={{ 
-                    backgroundColor: colors.primary, 
-                    color: 'white',
-                    py: 2,
-                    position: 'relative',
+                    p: 3,
+                    pb: 2,
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    '&::after': {
-                        content: '""',
-                        position: 'absolute',
-                        bottom: 0,
-                        left: '5%',
-                        width: '90%',
-                        height: '2px',
-                        backgroundColor: colors.secondary
-                    }
+                    borderBottom: '1px solid',
+                    borderColor: 'divider'
                 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Avatar sx={{ 
-                            bgcolor: 'white', 
-                            color: colors.primary,
-                            width: 48,
-                            height: 48
-                        }}>
-                            <EditIcon sx={{ fontSize: 32 }} />
-                        </Avatar>
-                        <Box>
-                            <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
-                                Editar Área
-                            </Typography>
-                            <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                {editingArea?.nombre}
-                            </Typography>
-                        </Box>
-                    </Box>
+                    <Typography variant="h6" fontWeight="400">
+                        Editar área
+                    </Typography>
                     <IconButton 
                         onClick={handleCloseEdit}
-                        sx={{ color: 'white' }}
                         size="small"
+                        sx={{ color: 'text.secondary' }}
                     >
                         <CloseIcon />
                     </IconButton>
                 </DialogTitle>
 
-                {/* Formulario de Edición */}
-                <Box sx={{ p: 4 }}>
+                <Box sx={{ p: 3 }}>
                     <Box component="form" onSubmit={handleSubmitEdit}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                             
-                            {/* Alertas */}
                             {editError && (
-                                <Alert severity="error">
+                                <Alert severity="error" sx={{ borderRadius: 1 }}>
                                     {editError}
                                 </Alert>
                             )}
 
-                            {/* Información de la área */}
-                            <Box sx={{ 
-                                p: 2, 
-                                backgroundColor: colors.background, 
-                                borderRadius: 1,
-                                border: `1px solid ${colors.primary}20`
-                            }}>
-                                <Typography variant="body2" fontWeight="medium">
-                                    Información de la Área:
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    ID: {editingArea?.id_area} • Sucursal: {sucursal}
-                                </Typography>
-                            </Box>
-
-                            {/* Campo Nombre */}
                             <TextField
                                 name="nombre"
-                                label="Nombre del Área *"
+                                label="Nombre del área"
                                 value={areaEditada.nombre}
                                 onChange={handleInputChange}
                                 variant="outlined"
                                 fullWidth
                                 required
                                 disabled={editLoading}
-                                helperText="Nombre único para identificar el área"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 1,
+                                    }
+                                }}
                             />
                             
-                            {/* Campo Descripción */}
                             <TextField
                                 name="descripcion"
                                 label="Descripción"
@@ -338,211 +568,125 @@ const handleDelete = async () => {
                                 variant="outlined"
                                 fullWidth
                                 multiline
-                                rows={3}
+                                rows={2}
                                 disabled={editLoading}
-                                helperText="Descripción detallada del área"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 1,
+                                    }
+                                }}
                             />
                             
-                            {/* Checkbox Estado */}
                             <Box sx={{ 
                                 display: 'flex', 
                                 alignItems: 'center', 
-                                gap: 2,
+                                justifyContent: 'space-between',
                                 p: 2,
-                                border: `1px solid ${areaEditada.es_activa ? colors.accent : '#ccc'}30`,
-                                borderRadius: 1,
-                                backgroundColor: areaEditada.es_activa ? `${colors.accent}10` : 'transparent'
+                                border: '1px solid',
+                                borderColor: 'divider',
+                                borderRadius: 1
                             }}>
-                                <input
-                                    type="checkbox"
+                                <Box>
+                                    <Typography variant="body1" fontWeight="400">
+                                        Área activa
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        {areaEditada.es_activa ? 'Disponible para uso' : 'No disponible'}
+                                    </Typography>
+                                </Box>
+                                <Switch
                                     name="es_activa"
                                     checked={areaEditada.es_activa}
                                     onChange={handleInputChange}
                                     disabled={editLoading}
-                                    style={{
-                                        width: '20px',
-                                        height: '20px',
-                                        accentColor: colors.accent
-                                    }}
+                                    color="primary"
                                 />
-                                <Box>
-                                    <Typography variant="body1" fontWeight="medium">
-                                        Área Activa
-                                    </Typography>
-                                    <Typography variant="body2" color="textSecondary">
-                                        {areaEditada.es_activa 
-                                            ? 'El área está disponible para uso' 
-                                            : 'El área no está disponible'
-                                        }
-                                    </Typography>
-                                </Box>
                             </Box>
                             
-                            {/* Botones */}
-                            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
-                                <Button 
-                                    type="button" 
-                                    variant="outlined" 
-                                    color="inherit"
+                            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 2 }}>
+                                <Typography 
+                                    variant="button" 
                                     onClick={handleCloseEdit}
-                                    disabled={editLoading}
-                                    sx={{
-                                        color: colors.text,
-                                        borderColor: colors.primary,
+                                    sx={{ 
+                                        color: 'text.secondary',
+                                        cursor: 'pointer',
+                                        py: 1,
+                                        px: 2,
+                                        borderRadius: 1,
                                         '&:hover': {
-                                            borderColor: colors.secondary,
-                                            backgroundColor: `${colors.secondary}10`
+                                            backgroundColor: 'action.hover'
                                         }
                                     }}
                                 >
                                     Cancelar
-                                </Button>
+                                </Typography>
                                 
-                                <Button 
-                                    type="submit" 
-                                    variant="contained" 
+                                <Typography 
+                                    variant="button" 
+                                    type="submit"
                                     disabled={editLoading}
-                                    startIcon={editLoading ? <CircularProgress size={20} /> : <EditIcon />}
-                                    sx={{
-                                        backgroundColor: colors.accent,
+                                    sx={{ 
+                                        color: 'primary.main',
+                                        cursor: editLoading ? 'default' : 'pointer',
+                                        py: 1,
+                                        px: 2,
+                                        borderRadius: 1,
+                                        backgroundColor: editLoading ? 'action.disabled' : 'transparent',
                                         '&:hover': {
-                                            backgroundColor: colors.primary
-                                        },
-                                        '&:disabled': {
-                                            backgroundColor: `${colors.text}40`
+                                            backgroundColor: editLoading ? 'action.disabled' : 'action.hover'
                                         }
                                     }}
                                 >
-                                    {editLoading ? 'Guardando...' : 'Actualizar Área'}
-                                </Button>
+                                    {editLoading ? 'Guardando...' : 'Guardar'}
+                                </Typography>
                             </Box>
                         </Box>
                     </Box>
                 </Box>
             </Dialog>
 
-            {/* Grid de Cards */}
-            <Box mt={4}>
+            {/* Header con controles de vista */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, mt:2,  p:2 }}>
+                <Typography variant="h5" fontWeight="500">
+                    Total de áreas Registradas
+                </Typography>
+                <ToggleButtonGroup
+                    value={viewMode}
+                    exclusive
+                    onChange={handleViewModeChange}
+                    aria-label="modo de vista"
+                    size="small"
+                >
+                    <ToggleButton value="grid" aria-label="vista cuadrícula">
+                        <GridViewIcon />
+                    </ToggleButton>
+                    <ToggleButton value="list" aria-label="vista lista">
+                        <ViewListIcon />
+                    </ToggleButton>
+                </ToggleButtonGroup>
+           </Box>
+            {/* Contenido según el modo de vista */}
+            <Box mt={2} sx={{background: 'linear-gradient(to bottom, #ce8c4e10 0%, #ede0d40c 10%)', p:2, borderRadius:2, border:'1px solid', borderColor:'divider'}}>
                 {areas.length === 0 ? (
-                    <Typography variant="h6" textAlign="center" color="textSecondary">
-                        No hay áreas registradas para esta sucursal
+                    <Typography variant="body1" textAlign="center" color="text.secondary" sx={{ py: 8 }}>
+                        No hay áreas registradas
                     </Typography>
-                ) : (
+                ) : viewMode === 'grid' ? (
                     <Grid container spacing={2}>
                         {areas.map(area => (
-                            <Grid size={{xs: 12, sm: 6, md: 4}}  key={area.id_area}>
-                                <Card 
-                                    sx={{ 
-                                        height: '100%',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'translateY(-4px)',
-                                            boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
-                                        }
-                                    }}
-                                >
-                                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                                        {/* Header con nombre y estado */}
-                                        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                                            <Typography 
-                                                variant="h6" 
-                                                component="h2"
-                                                sx={{ 
-                                                    fontWeight: 'bold',
-                                                    color: 'primary.main'
-                                                }}
-                                            >
-                                                {area.nombre}
-                                            </Typography>
-                                            <Chip 
-                                                label={area.es_activa ? "Activa" : "Inactiva"} 
-                                                color={area.es_activa ? "success" : "default"}
-                                                size="small"
-                                                variant={area.es_activa ? "filled" : "outlined"}
-                                            />
-                                        </Box>
-
-                                        {/* Descripción */}
-                                        <Typography 
-                                            variant="body2" 
-                                            color="textSecondary" 
-                                            sx={{ 
-                                                mb: 2,
-                                                minHeight: '40px'
-                                            }}
-                                        >
-                                            {area.descripcion || "Sin descripción"}
-                                        </Typography>
-
-                                        {/* Información adicional */}
-                                        <Box sx={{ mt: 'auto' }}>
-                                            <Typography variant="caption" color="textSecondary" display="block">
-                                                ID: {area.id_area}
-                                            </Typography>
-                                            <Typography variant="caption" color="textSecondary" display="block">
-                                                Creado: {area.created_at ? new Date(area.created_at).toLocaleDateString() : '-'}
-                                            </Typography>
-                                        </Box>
-                                    </CardContent>
-
-                                    {/* Acciones */}
-                                    <CardActions sx={{ 
-                                        p: 2, 
-                                        pt: 0, 
-                                        justifyContent: 'space-between',
-                                        borderTop: '1px solid',
-                                        borderColor: 'divider'
-                                    }}>
-                                        <Box>
-                                            {/* Botón Activar/Desactivar */}
-                                            <IconButton
-                                                onClick={() => handleToggleStatus(area.id_area, area.es_activa)}
-                                                disabled={loadingActions[area.id_area]}
-                                                color={area.es_activa ? "success" : "default"}
-                                                size="small"
-                                                title={area.es_activa ? "Desactivar área" : "Activar área"}
-                                            >
-                                                {loadingActions[area.id_area] ? (
-                                                    <Box width={24} height={24} />
-                                                ) : area.es_activa ? (
-                                                    <ToggleOnIcon />
-                                                ) : (
-                                                    <ToggleOffIcon />
-                                                )}
-                                            </IconButton>
-
-                                            {/* Botón Editar */}
-                                            <IconButton
-                                                onClick={() => handleEdit(area)}
-                                                disabled={loadingActions[area.id_area]}
-                                                color="primary"
-                                                size="small"
-                                                title="Editar área"
-                                            >
-                                                <EditIcon />
-                                            </IconButton>
-                                        </Box>
-
-                                        {/* Botón Eliminar */}
-                                        <Button
-                                            onClick={() => handleOpenDeleteDialog(area.id_area)}
-                                            disabled={loadingActions[area.id_area]}
-                                            color="error"
-                                            size="small"
-                                            startIcon={<DeleteIcon />}
-                                            variant="outlined"
-                                        >
-                                            Eliminar
-                                        </Button>
-                                    </CardActions>
-                                </Card>
+                            <Grid size={{xs:12, md:6, lg:4}} key={area.id_area}>
+                                <GridCard area={area} />
                             </Grid>
                         ))}
                     </Grid>
+                ) : (
+                    <Stack spacing={1}>
+                        {areas.map(area => (
+                            <ListItem key={area.id_area} area={area} />
+                        ))}
+                    </Stack>
                 )}
-            </Box>
+            </Box> 
         </>
     );
 };
