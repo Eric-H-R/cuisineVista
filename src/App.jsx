@@ -13,6 +13,8 @@ import Tickets from "./modules/tickets/pages/Tickets";
 const Login = lazy(() => import("./modules/auth/components/login/login"));
 const Tiendas = lazy(() => import("./components/tiendas/pages/Tiendas"));
 
+
+const Cocina = lazy(() => import ("./modules/cocina/pages/Cocina"));
 const Auditoria = lazy(() => import("./modules/auditoria/pages/Auditoria"));
 const Combos = lazy(() => import("./modules/combos/pages/Combos"));
 const Cuenta = lazy(() => import("./modules/cuenta/pages/Cuenta"));
@@ -97,6 +99,7 @@ const App = () => {
             <Route element={<PrivateRoute />}>
               <Route element={<Layout />}>
                 <Route path="/auditoria" element={<Auditoria />} />
+                <Route path="/cocina" element={<Cocina />} />
                 <Route path="/cuenta" element={<Cuenta />}></Route>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/ordenes" element={<Ordenes />} />
