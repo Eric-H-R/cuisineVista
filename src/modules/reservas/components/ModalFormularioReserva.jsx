@@ -77,7 +77,6 @@ const ModalFormularioReserva = ({
   // Efecto para cerrar automáticamente cuando se acabe el temporizador
   useEffect(() => {
     if (open && !temporizadorActivo) {
-      console.log('⏰ Temporizador agotado, cerrando formulario automáticamente');
       handleCloseAutomatico();
     }
   }, [open, temporizadorActivo]);
@@ -105,8 +104,7 @@ const ModalFormularioReserva = ({
   }, [open, reservaData]);
 
   const handleCloseAutomatico = () => {
-    console.log('🔄 Cerrando formulario por tiempo agotado');
-    toast.warning('⏰ Tiempo agotado - El formulario se ha cerrado automáticamente');
+    toast.warning('Tiempo agotado - El formulario se ha cerrado automáticamente');
     limpiarFormulario();
     onClose();
   };
@@ -140,7 +138,7 @@ const ModalFormularioReserva = ({
 
     // Verificar si el temporizador sigue activo
     if (!temporizadorActivo) {
-      toast.error('⏰ Tiempo agotado - No se puede crear la reserva');
+      toast.error('Tiempo agotado - No se puede crear la reserva');
       handleCloseAutomatico();
       return;
     }
@@ -174,7 +172,6 @@ const ModalFormularioReserva = ({
         recepcionista_id: 1
       };
 
-      console.log('📤 Datos de reserva a enviar:', datosReserva);
       await onCrearReserva(datosReserva);
       limpiarFormulario();
     } catch (error) {
@@ -189,9 +186,9 @@ const ModalFormularioReserva = ({
           debeTerminarAntes: errorData.reserva_debe_terminar_antes
         });
         
-        toast.error(`❌ ${errorData.error || 'Error al crear la reserva'}`);
+        toast.error(`${errorData.error || 'Error al crear la reserva'}`);
       } else {
-        toast.error('❌ Error al crear la reserva');
+        toast.error('Error al crear la reserva');
       }
     } finally {
       setLoading(false);
@@ -210,7 +207,6 @@ const ModalFormularioReserva = ({
   };
 
   const handleClose = () => {
-    console.log('👤 Usuario cerró manualmente el formulario');
     limpiarFormulario();
     onClose();
   };
@@ -283,7 +279,6 @@ const obtenerSugerenciaFecha = () => {
   
   // Si la sugerencia de hoy es en el futuro, usarla
   if (sugerenciaHoy > ahora) {
-    console.log(`🕒 Sugerencia: Hoy a las ${errorBackend.disponibleDesde}`);
     return sugerenciaHoy.toISOString().slice(0, 16);
   }
   
@@ -291,20 +286,18 @@ const obtenerSugerenciaFecha = () => {
   const sugerenciaManana = new Date(sugerenciaHoy);
   sugerenciaManana.setDate(sugerenciaManana.getDate() + 1);
   
-  console.log(`🕒 Sugerencia: Mañana a las ${errorBackend.disponibleDesde}`);
   return sugerenciaManana.toISOString().slice(0, 16);
 };
 
 const aplicarSugerencia = () => {
   const sugerencia = obtenerSugerenciaFecha();
   if (sugerencia) {
-    console.log('🎯 Aplicando sugerencia:', sugerencia);
     setFormData(prev => ({
       ...prev,
       inicio: sugerencia
     }));
     setErrorBackend(null);
-    toast.info('🕒 Horario sugerido aplicado');
+    toast.info('Horario sugerido aplicado');
   }
 };
 

@@ -34,6 +34,7 @@ const Proveedores = lazy(() => import("./modules/proveedores/pages/Proveedores")
 const Compras = lazy(() => import("./modules/compras/pages/Compras"));
 const Recepcion = lazy(() => import("./modules/recepciones/pages/Recepcion"));
 const Productos = lazy(() => import("./modules/productos/pages/Productos"));
+const Campanias = lazy(() => import("./modules/crm/pages/Campanias"))
 // Loader básico
 const Loader = () => (
   <LoadingComponent message="Cargando..." overlay />
@@ -118,7 +119,7 @@ const App = () => {
                 <Route path="/proveedores" element={<Proveedores />} />
                 <Route path="/compras" element={<Compras />} />
                 <Route path="/mermas" element={<Recepcion />} />
-
+                <Route path="/crm" element={<Campanias />} />
               </Route>
             </Route>
           </Routes>

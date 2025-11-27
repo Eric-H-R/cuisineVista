@@ -66,7 +66,6 @@ const Reservas = () => {
   const loadMesas = async () => {
     try {
       setLoading(true);
-      console.log('sucursal: ', sucursalId)
       const { data } = await mesasService.getBySucursal(sucursalId, {
         solo_activas: false // Traer todas para mostrar las inactivas también
       });
@@ -106,7 +105,7 @@ const Reservas = () => {
           setMesaSeleccionada(null);
           setHoldActual(null);
           
-          toast.warning('⏰ Tiempo de reserva agotado - Hold liberado');
+          toast.warning('Tiempo de reserva agotado - Hold liberado');
           return 0;
         }
         return prev - 1;
@@ -209,11 +208,11 @@ const Reservas = () => {
       cancelarHoldActual('Reserva cancelada por el usuario');
     }
   
-    // ✅ Limpiar selección de mesa
+    // Limpiar selección de mesa
     setMesaSeleccionada(null);
     setHoldActual(null);
     
-    toast.info('🛑 Reserva cancelada - Hold liberado');
+    toast.info('Reserva cancelada - Hold liberado');
   };
 
     // Función para crear HOLD
@@ -233,21 +232,19 @@ const Reservas = () => {
         ttl_minutes: 3
       };
 
-      console.log('📤 Creando HOLD:', holdData);
 
       const { data } = await reservaService.create(holdData);
       
       if (data && data.hold) {
         setHoldActual(data.hold);
         setMesaSeleccionada(mesa);
-        toast.success(`✅ Hold creado para mesa ${mesa.codigo_mesa}`);
-        console.log('✅ HOLD creado:', data.hold);
+        toast.success(`Hold creado para mesa ${mesa.codigo_mesa}`);
         return data.hold;
       }
     } catch (error) {
-      console.error('❌ Error creando HOLD:', error);
+      console.error('Error creando HOLD:', error);
       const errorMessage = error.response?.data?.message || 'Error creando el hold';
-      toast.error(`❌ ${errorMessage}`);
+      toast.error(`${errorMessage}`);
       throw error;
     } finally {
       setLoadingHold(false);
@@ -260,18 +257,16 @@ const Reservas = () => {
 
     try {
       setLoadingHold(true);
-      console.log('📤 Cancelando HOLD:', holdActual.id_hold_mesa);
 
       await reservaService.cancel(holdActual.id_hold_mesa, motivo);
       
-      console.log('✅ HOLD cancelado');
       setHoldActual(null);
       setMesaSeleccionada(null);
-      toast.info('🔄 Hold cancelado');
+      toast.info('Hold cancelado');
     } catch (error) {
-      console.error('❌ Error cancelando HOLD:', error);
+      console.error('Error cancelando HOLD:', error);
       const errorMessage = error.response?.data?.message || 'Error cancelando el hold';
-      toast.error(`❌ ${errorMessage}`);
+      toast.error(`${errorMessage}`);
     } finally {
       setLoadingHold(false);
     }
@@ -280,19 +275,19 @@ const Reservas = () => {
     // Función para manejar selección de mesa
   const handleSeleccionarMesa = async (mesa) => {
     if (!temporizadorActivo || !reservaData) {
-      toast.warning('⚠️ Primero debes comenzar una reserva');
+      toast.warning('Primero debes comenzar una reserva');
       return;
     }
 
     if (loadingHold) {
-      toast.info('⏳ Procesando selección anterior...');
+      toast.info('Procesando selección anterior...');
       return;
     }
 
     // Si ya hay una mesa seleccionada, cancelar el hold anterior
     if (holdActual && mesaSeleccionada) {
       if (mesaSeleccionada.id_mesa === mesa.id_mesa) {
-        toast.info('ℹ️ Esta mesa ya está seleccionada');
+        toast.info('Esta mesa ya está seleccionada');
         return;
       }
       
@@ -331,21 +326,20 @@ const cargarReservas = async () => {
 
 const handleCancelarReserva = async (reserva, motivo) => {
   try {
-    console.log('Cancelando reserva:', reserva.id_reserva, 'Motivo:', motivo);
     
     await reservaService.cancelReserva(reserva.id_reserva, motivo);
-    toast.success('✅ Reserva cancelada exitosamente');
+    toast.success('Reserva cancelada exitosamente');
     await cargarReservas(); // Recargar lista
   } catch (error) {
     console.error('Error cancelando reserva:', error);
     const errorMessage = error.response?.data?.message || 'Error cancelando la reserva';
-    toast.error(`❌ ${errorMessage}`);
+    toast.error(`${errorMessage}`);
   }
 };
 
 // Función para editar reserva (placeholder)
 const handleEditarReserva = (reserva) => {
-  toast.info('✏️ Editar reserva - Funcionalidad en desarrollo');
+  toast.info('Editar reserva - Funcionalidad en desarrollo');
 };
 
 const handleVerDetalles = (reserva) => {
@@ -358,7 +352,7 @@ const handleCrearReserva = async (datosReserva) => {
     const { data } = await reservaService.createReserva(datosReserva);
     
     if (data && data.reserva) {
-      toast.success('✅ Reserva creada exitosamente');
+      toast.success('Reserva creada exitosamente');
       
       // Limpiar todo el estado
       setTemporizadorActivo(false);
