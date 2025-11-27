@@ -228,12 +228,9 @@ const Combos = () => {
         </Box>
       </Box>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={4}>
+      <Grid size={{xs:12, md:6, lg:4}}>
+        <Grid  >
           <IndicadoresComponent combos={combos} />
-        </Grid>
-        <Grid item xs={12} md={8}>
-          {/* reserved for other controls or stats */}
         </Grid>
       </Grid>
 
@@ -269,7 +266,7 @@ const Combos = () => {
                 </Grid>
               </Grid>
 
-              <Box sx={{ mt: 2 }}>
+              <Box mt={4} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%' }}>
                 {selectedProducts.map(sp => {
                   const prod = products.find(p => (p.id_producto || p.id || p.id_producto) === sp.producto_id) || {};
                   return (
