@@ -123,7 +123,21 @@ const Caja = () => {
       }
 
       // usar el endpoint que lista pedidos pendientes para finalizar
-      const res = await PagosService.obtenerPedidosPendientes(sucursalId);
+      // construir body: estado:0, fecha_desde=12h atrás, fecha_hasta=now, sucursal_id, tipo_pedido:1
+      const now = new Date();
+      // Enviar solo la parte de fecha (YYYY-MM-DD).
+      // Para pruebas: rango = 1 semana antes y 1 semana después
+      const fecha_hasta = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const fecha_desde = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const body = {
+        estado: 0,
+        fecha_desde,
+        fecha_hasta,
+        sucursal_id: sucursalId,
+        tipo_pedido: 1
+      };
+
+      const res = await PagosService.obtenerPedidosPendientes(body);
       const items = res?.data?.pedidos ?? [];
       setPedidosParaFinalizar(items);
       setSearchTerm('');

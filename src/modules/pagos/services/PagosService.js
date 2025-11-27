@@ -8,33 +8,15 @@ const PagosService = {
     // Enlistar pedidos pendientes en la sucursal para posterior cerrar en caso de 
     // que el cliente no lo haga desde la aplicación móvil
     //api/cocina/pedidos 
-    obtenerPedidosPendientes: (sucursal_id) => API.post('/cocina/pedidos', { sucursal_id }),
-    /* Respuesta JSON:
-    {
-    "pedidos": [
-        {
-            "created_at": "2025-11-26T06:58:27.180346",
-            "estado_pedido": 0,
-            "folio": "PED-20251126065827",
-            "id_pedido": 12,
-            "items_en_cocina": [
-                {
-                    "cantidad": 1,
-                    "combo_id": null,
-                    "created_at": "2025-11-26T06:58:27.727215",
-                    "id_pedido_item": 14,
-                    "notas": "string",
-                    "producto_id": 3
-                }
-            ],
-            "mesa_id": 6,
-            "progreso": "0/1",
-            "tipo_pedido": 1,
-            "tipo_pedido_display": "Dine-in"
-        }
-    ],
-    "total": 1
-}    
+    obtenerPedidosPendientes: (data) => API.post('/pedidos/listar', data),
+    /* Enviar JSON:
+       {
+  "estado": 0, // este estado es 0 porque quiero traer todos los pedidos de la sucursal con estatus 0 para posteror usar cerrarPedido para cambiar el estatus a 3
+  "fecha_desde": "string",
+  "fecha_hasta": "string",
+  "sucursal_id": 0,
+  "tipo_pedido": 0
+}
     */
     
     // obtener pagos pendientes de una sucursal 
