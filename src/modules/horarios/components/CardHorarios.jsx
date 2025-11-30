@@ -10,7 +10,8 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Divider
+  Divider,
+  Collapse
 } from '@mui/material';
 import {
   MoreVert,
@@ -20,13 +21,15 @@ import {
   People,
   AccessTime,
   List as ListIcon,
-  Visibility
+  Visibility,
+  Key,
+  ContentCopy
 } from '@mui/icons-material';
 import colors, { withAlpha } from '../../../theme/colores';
 import AsignarHorarioUsuario from './AsignarHorarioUsuario';
 import CardUsuariosAsignados from '../components/CardUsuariosAsignados';
 import ConfirmDialog from '../../../components/Common/ConfirmDialog';
-import LoadingComponent from '../../../components/Loadings/LoadingComponent';
+import { toast } from 'react-toastify';
 
 const CardHorario = ({ 
   horario, 
@@ -34,16 +37,18 @@ const CardHorario = ({
   onDesactivar,
   onAsignarUsuario,
   onGestionarDetalles,
-  onAsignacionExitosa
+  onAsignacionExitosa,
+  codigos = []
 }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [asignacionOpen, setAsignacionOpen] = useState(false);
   const [modalUsuarioAsignadoOpen, setModalUsuarioAsignadoOpen] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const open = Boolean(anchorEl);
 
-  const handleMenuClose = () => { setAnchorEl(null);};
+  const handleMenuClose = () => { setAnchorEl(null); };
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
   const handleEdit = () => { onEdit(); handleClose(); };
@@ -59,29 +64,42 @@ const CardHorario = ({
   const handleVerUsuarios = () => setModalUsuarioAsignadoOpen(true);
   const handleCloseModal = () => setModalUsuarioAsignadoOpen(false);
 
-  
+  const handleConfirmDesactivar = async () => {
+    setOpenConfirm(false);
+    setLoading(true);
+    const MIN_LOADING_TIME = 500;
+    const startTime = Date.now();
 
-const handleConfirmDesactivar = async () => {
-  setOpenConfirm(false);
-  setLoading(true);
-  const MIN_LOADING_TIME = 500; // ⏱️ medio segundo recomendado
-  const startTime = Date.now();
+    try {
+      await onDesactivar(); 
+    } catch (err) {
+      console.error(err);
+    } finally {
+      const elapsed = Date.now() - startTime;
+      const remaining = MIN_LOADING_TIME - elapsed;
 
-  try {
-    await onDesactivar(); 
-  } catch (err) {
-    console.error(err);
-  } finally {
-    const elapsed = Date.now() - startTime;
-    const remaining = MIN_LOADING_TIME - elapsed;
-
-    if (remaining > 0) {
-      setTimeout(() => setLoading(false), remaining);
-    } else {
-      setLoading(false);
+      if (remaining > 0) {
+        setTimeout(() => setLoading(false), remaining);
+      } else {
+        setLoading(false);
+      }
     }
-  }
-};
+  };
+
+  const handleCopiarCodigo = (codigo) => {
+    navigator.clipboard.writeText(codigo);
+    toast.success(`Código ${codigo} copiado`);
+  };
+
+  const formatearExpiracion = (fechaExpiracion) => {
+    if (!fechaExpiracion) return 'No expira';
+    const fecha = new Date(fechaExpiracion);
+    return fecha.toLocaleTimeString('es-MX', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
 
   return (
     <Card
@@ -100,6 +118,7 @@ const handleConfirmDesactivar = async () => {
     >
       <CardContent sx={{ p: 3, pb: 2 }}>
 
+        {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Schedule sx={{ color: colors.primary.main }} />
@@ -108,7 +127,7 @@ const handleConfirmDesactivar = async () => {
             </Typography>
           </Box>
 
-        <IconButton
+          <IconButton
             size="small"
             onClick={handleClick}
             sx={{
@@ -123,6 +142,7 @@ const handleConfirmDesactivar = async () => {
           </IconButton>
         </Box>
 
+        {/* Chips */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Chip
             label={horario.clave}
@@ -147,6 +167,7 @@ const handleConfirmDesactivar = async () => {
           />
         </Box>
 
+        {/* Descripción */}
         <Typography
           variant="body2"
           color={colors.text.secondary}
@@ -162,6 +183,7 @@ const handleConfirmDesactivar = async () => {
           {horario.descripcion}
         </Typography>
 
+        {/* Estadísticas */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <AccessTime fontSize="small" sx={{ color: colors.accent.main }} />
@@ -171,17 +193,105 @@ const handleConfirmDesactivar = async () => {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <People fontSize="small" sx={{ color: colors.accent.main}} />
+            <People fontSize="small" sx={{ color: colors.accent.main }} />
             <Typography variant="caption" color={colors.accent.main}>
               Usuarios asignados: {horario.usuarios_asignados || 0}
             </Typography>
           </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Key fontSize="small" sx={{ color: colors.status.warning }} />
+            <Typography variant="caption" color={colors.status.warning}>
+              Códigos: {codigos.length} activos
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Sección de Códigos */}
+        <Box sx={{ mt: 2 }}>
+          <Button
+            fullWidth
+            size="small"
+            onClick={() => setExpanded(!expanded)}
+            startIcon={<Key />}
+            sx={{
+              justifyContent: 'flex-start',
+              color: colors.text.secondary,
+              textTransform: 'none',
+              fontWeight: 600,
+              borderRadius: 2,
+              border: `1px solid ${colors.border.light}`,
+              '&:hover': {
+                backgroundColor: withAlpha(colors.primary.main, '8')
+              }
+            }}
+          >
+            {expanded ? 'Ocultar Códigos' : 'Ver Códigos'} ({codigos.length})
+          </Button>
+
+          <Collapse in={expanded} timeout="auto" unmountOnExit>
+            <Box sx={{ mt: 2, p: 2, backgroundColor: withAlpha(colors.background.light, '50'), borderRadius: 2 }}>
+              {codigos.length === 0 ? (
+                <Box sx={{ textAlign: 'center', py: 2 }}>
+                  <Key sx={{ fontSize: 32, color: colors.text.disabled, mb: 1 }} />
+                  <Typography variant="body2" color={colors.text.secondary}>
+                    No hay códigos para hoy
+                  </Typography>
+                  <Typography variant="caption" color={colors.text.disabled}>
+                    Los códigos se generan automáticamente cada día
+                  </Typography>
+                </Box>
+              ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {codigos.map((codigo, index) => (
+                    <Box
+                      key={codigo.id_turno_clave || index}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        p: 1.5,
+                        borderRadius: 2,
+                        backgroundColor: colors.background.paper,
+                        border: `1px solid ${colors.border.light}`,
+                        '&:hover': {
+                          borderColor: colors.primary.light
+                        }
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="subtitle2" fontWeight="bold" color={colors.primary.main}>
+                          {codigo.codigo}
+                        </Typography>
+                        <Typography variant="caption" color={colors.text.secondary}>
+                          Expira: {formatearExpiracion(codigo.expira_en)}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleCopiarCodigo(codigo.codigo)}
+                        sx={{
+                          color: colors.primary.main,
+                          '&:hover': {
+                            backgroundColor: withAlpha(colors.primary.main, '12')
+                          }
+                        }}
+                      >
+                        <ContentCopy fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          </Collapse>
         </Box>
 
       </CardContent>
 
       <Divider sx={{ borderColor: colors.border.light }} />
 
+      {/* Acciones */}
       <CardActions sx={{ p: 2, pt: 1.5, justifyContent: 'space-between' }}>
         <Button
           size="small"
@@ -212,6 +322,7 @@ const handleConfirmDesactivar = async () => {
         </Button>
       </CardActions>
 
+      {/* Menú de opciones */}
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -242,15 +353,16 @@ const handleConfirmDesactivar = async () => {
         <Divider />
 
         <MenuItem onClick={() => {
-                    handleMenuClose();
-                    setOpenConfirm(true);
-                  }}
+          handleMenuClose();
+          setOpenConfirm(true);
+        }}
           sx={{ py: 1.2, color: colors.status.error }}>
           <Delete fontSize="small" sx={{ mr: 1 }} />
           Desactivar
         </MenuItem>
       </Menu>
 
+      {/* Modales */}
       <AsignarHorarioUsuario
         horario={horario}
         open={asignacionOpen}
@@ -271,8 +383,6 @@ const handleConfirmDesactivar = async () => {
         title="Desactivar horario"
         message="¿Estás seguro que deseas desactivar este horario?"
       />
-
-     
     </Card>
   );
 };

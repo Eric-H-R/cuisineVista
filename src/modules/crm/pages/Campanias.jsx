@@ -62,28 +62,28 @@ const GestionCampanias = () => {
   const handleActivarCampania = async (campania) => {
     try {
       await campaniasService.activar(campania.id_campania);
-      toast.success('✅ Campaña activada exitosamente');
+      toast.success('Campaña activada exitosamente');
       cargarCampanias();
     } catch (error) {
       console.error('Error activando campaña:', error);
-      toast.error('❌ Error al activar la campaña');
+      toast.error('Error al activar la campaña');
     }
   };
 
   const handleDesactivarCampania = async (campania) => {
     try {
       await campaniasService.desactivar(campania.id_campania);
-      toast.success('✅ Campaña desactivada exitosamente');
+      toast.success('Campaña desactivada exitosamente');
       cargarCampanias();
     } catch (error) {
       console.error('Error desactivando campaña:', error);
-      toast.error('❌ Error al desactivar la campaña');
+      toast.error('Error al desactivar la campaña');
     }
   };
 
   const handleGenerarCampania = async (datosCampania) => {
   try {
-    // ✅ Asegurar que cliente_ids sea un array de números
+    // Asegurar que cliente_ids sea un array de números
     const clienteIds = Array.isArray(datosCampania.cliente_ids) 
       ? datosCampania.cliente_ids 
       : datosCampania.clientesSeleccionados?.map(c => c.id_usuario) || [];
@@ -96,13 +96,13 @@ const GestionCampanias = () => {
       cliente_ids: clienteIds
     };
     
-    console.log('📤 Creando campaña:', campaniaData);
+    console.log('Creando campaña:', campaniaData);
     await campaniasService.generarDesdeMetrica(campaniaData);
-    toast.success('🎉 Campaña creada exitosamente');
+    toast.success('Campaña creada exitosamente');
     cargarCampanias();
   } catch (error) {
     console.error('Error generando campaña:', error);
-    toast.error('❌ Error al crear la campaña');
+    toast.error('Error al crear la campaña');
   }
 };
 
@@ -121,7 +121,7 @@ const GestionCampanias = () => {
 
   // Para los contadores - CORREGIDOS
   const campaniasActivas = campanias.filter(c => c.estatus === 1);
-  const campaniasInactivas = campanias.filter(c => c.estatus === 0); // Cambiado de 2 a 0
+  const campaniasInactivas = campanias.filter(c => c.estatus === 0);
   console.log(campanias)
   return (
     <Container maxWidth="xl" sx={{ mt: 0, bgcolor: colors.background.default, minHeight: '100vh' }}>

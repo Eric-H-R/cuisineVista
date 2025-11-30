@@ -35,7 +35,6 @@ const ModalMetricas = ({
   open, 
   onClose, 
   onGenerarCampania,
-  // ✅ TODAS LAS PROPS NECESARIAS
   tipoMetrica = 'clientes_vip',
   clientes = [],
   clientesSeleccionados = [],

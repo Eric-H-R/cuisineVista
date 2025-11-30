@@ -72,7 +72,7 @@ const CardCampania = ({ campania, onActivar, onDesactivar }) => {
               Cupones utilizados
             </Typography>
             <Typography variant="body2" fontWeight="bold">
-              {campania.total_cupones} / {campania.total_cupones_usados}
+               {campania.total_cupones_usados} / {campania.total_cupones}
             </Typography>
           </Box>
           <LinearProgress 

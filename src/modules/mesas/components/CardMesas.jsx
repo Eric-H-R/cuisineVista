@@ -115,6 +115,7 @@ const CardMesas = () => {
           response = await MesasService.getByArea(selectedArea, sucursal, params);
         } else {
           response = await MesasService.getBySucursal(sucursal, params);
+           console.log('mesas', response)
         }
 
         const data = response && response.data && (response.data.data || response.data) || [];
@@ -144,6 +145,7 @@ const CardMesas = () => {
           response = await MesasService.getByArea(selectedArea, sucursal, params);
         } else {
           response = await MesasService.getBySucursal(sucursal, params);
+          console.log('mesas', response)
         }
         const data = response && response.data && (response.data.data || response.data) || [];
         setMesas(data);
@@ -280,7 +282,7 @@ const CardMesas = () => {
               color: 'text.primary'
             }}
           >
-            {mesa.nombre}
+            {mesa.codigo_mesa}
           </Typography>
           <Chip 
             label={mesa.es_activa ? "Activa" : "Inactiva"} 
