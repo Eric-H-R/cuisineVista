@@ -91,7 +91,7 @@ self.addEventListener("fetch", (event) => {
   // Runtime cache for selected API GET routes: network-first, fallback to cache when offline
   try {
     // Only handle same-origin API requests or the configured API host
-    const apiPattern = /\/api\/(areas|mesas|menus|sucursales|productos|insumos|reservas|ordenes)/i;
+    const apiPattern = /\/api\/(auditoria|cocina|cuenta|dashboard|ordenes|combos|areas|mesas|tickets|insumos|reservas|menus|pagos|sucursales|usuarios|horarios|configuracion|unidades-medida|proveedores|compras|mermas)/i;
     if (apiPattern.test(url)) {
       event.respondWith((async () => {
         const CACHE_NAME = 'API-RUNTIME-CACHE-v1';

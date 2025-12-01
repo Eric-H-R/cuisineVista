@@ -116,7 +116,6 @@ const App = () => {
                 <Route path="/usuarios" element={<Usuarios />} />
                 <Route path="/horarios" element={<Horarios />} />
                 <Route path="/configuracion" element={<Configuracion />} />
-                <Route path="/cuenta" element={<Pagos />} />
                 <Route path="/unidades-medida" element={<Unidades />} />
                 <Route path="/proveedores" element={<Proveedores />} />
                 <Route path="/compras" element={<Compras />} />
