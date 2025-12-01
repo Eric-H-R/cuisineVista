@@ -18,7 +18,6 @@ const Cocina = lazy(() => import ("./modules/cocina/pages/Cocina"));
 const Auditoria = lazy(() => import("./modules/auditoria/pages/Auditoria"));
 const Combos = lazy(() => import("./modules/combos/pages/Combos"));
 const Cuenta = lazy(() => import("./modules/cuenta/pages/Cuenta"));
-const Dashboard = lazy(() => import("./modules/dashboard/pages/Dashboard"));
 const Ordenes = lazy(() => import("./modules/ordenes/pages/Ordenes"));
 const Mesas = lazy(() => import("./modules/mesas/pages/Mesas"));
 const Menus = lazy(() => import("./modules/menus/pages/Menus"));
@@ -36,6 +35,8 @@ const Proveedores = lazy(() => import("./modules/proveedores/pages/Proveedores")
 const Compras = lazy(() => import("./modules/compras/pages/Compras"));
 const Recepcion = lazy(() => import("./modules/recepciones/pages/Recepcion"));
 const Productos = lazy(() => import("./modules/productos/pages/Productos"));
+const Campanias = lazy(() => import("./modules/crm/pages/Campanias"))
+const Dashboard = lazy(() => import("./modules/dashboard//pages/Dashboard"))
 // Loader básico
 const Loader = () => (
   <LoadingComponent message="Cargando..." overlay />
@@ -120,7 +121,7 @@ const App = () => {
                 <Route path="/proveedores" element={<Proveedores />} />
                 <Route path="/compras" element={<Compras />} />
                 <Route path="/mermas" element={<Recepcion />} />
-
+                <Route path="/crm" element={<Campanias />} />
               </Route>
             </Route>
           </Routes>

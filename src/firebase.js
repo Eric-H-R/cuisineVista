@@ -3,13 +3,13 @@ import { initializeApp } from "firebase/app";
 import { getMessaging } from "firebase/messaging";  
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD4-__I3X8-Ey71TRcioGZ8nq9d7fXaKbA",
-  authDomain: "push-notifications-cuisine.firebaseapp.com",
-  projectId: "push-notifications-cuisine",
-  storageBucket: "push-notifications-cuisine.firebasestorage.app",
-  messagingSenderId: "65217047825",
-  appId: "1:65217047825:web:0d580a2f3df43c729930b0",
-  measurementId: "G-RMN6HGWZ21"
+  apiKey: "AIzaSyBCFwoNrMOaltBQb3WE97H2IbCrjgHPj5M",
+  authDomain: "cuisine-push-new.firebaseapp.com",
+  projectId: "cuisine-push-new",
+  storageBucket: "cuisine-push-new.firebasestorage.app",
+  messagingSenderId: "674253062496",
+  appId: "1:674253062496:web:7282887cc6e354bddede05",
+  measurementId: "G-4WHPZHT8WF"
 };
 
 const app = initializeApp(firebaseConfig);

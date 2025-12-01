@@ -71,7 +71,6 @@ const CardReserva = ({ reserva, onCancelar, onEditar }) => {
   };
 
   const handleConfirmarCancelacion = (motivo) => {
-    console.log('📤 Cancelando reserva con motivo:', motivo);
     onCancelar(reserva, motivo);
     setConfirmDialogOpen(false);
   };

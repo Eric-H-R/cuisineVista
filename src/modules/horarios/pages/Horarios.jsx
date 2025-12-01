@@ -36,6 +36,10 @@ const Horarios = () => {
   const [horarioSeleccionado, setHorarioSeleccionado] = useState(null);
   const [asignacionOpen, setAsignacionOpen] = useState(false);
   const [horarioParaAsignar, setHorarioParaAsignar] = useState(null);
+  const [codigosPorHorario, setCodigosPorHorario] = useState({});
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(
+    new Date().toISOString().split('T')[0] // Fecha actual
+  );
   // Obtener sucursal_id del localStorage al cargar
   useEffect(() => {
     const sucursal = localStorage.getItem('sucursalId');
@@ -57,6 +61,12 @@ const Horarios = () => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (sucursalId) {
+      cargarCodigos();
+    }
+  }, [fechaSeleccionada, sucursalId]);
 
   const loadInitialData = async (sucursalId) => {
     try {
@@ -183,6 +193,35 @@ const Horarios = () => {
     loadInitialData(sucursalId);
   }
 
+  const cargarCodigos = async () => {
+    try {
+      const response = await horariosService.generarCodigos({
+        expira_horas: 1, // Esto puede ser cualquier valor ya que solo queremos los códigos existentes
+        fecha: fechaSeleccionada
+      });
+      
+      // ✅ ORGANIZAR CÓDIGOS POR HORARIO_ID
+      const todosLosCodigos = [
+        ...(response.data.codigos_existentes || []),
+        ...(response.data.codigos_generados || [])
+      ];
+      
+      const codigosAgrupados = {};
+      todosLosCodigos.forEach(codigo => {
+        if (!codigosAgrupados[codigo.horario_id]) {
+          codigosAgrupados[codigo.horario_id] = [];
+        }
+        codigosAgrupados[codigo.horario_id].push(codigo);
+      });
+      
+      setCodigosPorHorario(codigosAgrupados);
+    } catch (error) {
+      console.error('Error cargando códigos:', error);
+      toast.error('Error cargando códigos');
+    }
+  };
+
+  console.log('Codigos Horaior', codigosPorHorario)
   // Calcular estadísticas
   const statsData = [
     { 
@@ -228,7 +267,6 @@ const Horarios = () => {
               Administra los horarios y turnos de la sucursal
             </Typography>
           </Box>
-
           <Button
             variant="contained"
             size="large"
@@ -299,6 +337,8 @@ const Horarios = () => {
                       onAsignarUsuario={handleAbrirAsignacion}
                       onGestionarDetalles={() => handleGestionarDetalles(horario)}
                       onAsignacionExitosa={handleAsignacionExitosa}
+                      codigos={codigosPorHorario[horario.id_horario] || []}
+                      fechaSeleccionada={fechaSeleccionada}
                     />
                   </Grid>
                 ))}
@@ -321,7 +361,10 @@ const Horarios = () => {
             )}
           </>
         )}
-        <Vacaciones sucursalId={sucursalId} />
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Vacaciones sucursalId={sucursalId} />
+        </Box>
+        
       </Container>
     </>
   );

@@ -98,7 +98,7 @@ const [usuario, setUsuario] = useState("");
   };
 
   onMessage(messaging, (payload) => {
-    console.log("📲 Mensaje recibido en foreground:", payload);
+    console.log("Mensaje recibido en foreground:", payload);
 
     // Si quieres mostrar una notificación dentro de la app
     new Notification(payload.notification.title, {

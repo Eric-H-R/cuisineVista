@@ -1,65 +1,142 @@
-import { Box,Typography,Container,Button} from '@mui/material';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'; 
-import CardDashboard from '../components/CardDashboard';
-import CardInventario from '../components/CardPedidos';
-import CardMesas from '../components/CardMesas';
+// DashboardPrincipal.jsx
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Container,
+  Typography,
+  Tabs,
+  Tab,
+  Paper
+} from '@mui/material';
+import {
+  Star as StarIcon,
+  Inventory as InventoryIcon,
+  Dashboard as DashboardIcon,
+  Restaurant as RestaurantIcon,
+  Event as EventIcon,
+  AttachMoney
+} from '@mui/icons-material';
 
+// Components
+import FiltrosDashboard from '../components/FiltrosDashboard';
+import SeccionCalificaciones from '../components/SeccionCalificacones';
+import SeccionInventario from '../components/SeccionInventario';
+import SeccionPedidos from '../components/SeccionPedidos'
+import SeccionReservas from '../components/SeccionReservas';
+import SeccionVentas from '../components/SeccionVentas';
+import SeccionResumen from '../components/SeccionResumen';
 
+import { themeColors, getColor } from '../../../helpers/colorHelpers';
+import colors from '../../../theme/colores';
 
-const Dashboard = () => {
+const DashboardPrincipal = () => {
+  const [seccionActiva, setSeccionActiva] = useState(0);
+  const [filtros, setFiltros] = useState({
+    fecha_desde: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 días atrás
+    fecha_hasta: new Date().toISOString().split('T')[0] // Hoy
+  });
+  const [sucursalId, setSucursalId] = useState(null);
 
-
- 
-  const statsData = [
-    { title: 'Ingresos del día', value: '$150,420' },
-    { title: 'Pedidos', value: 501 },
-    { title: 'Clientes', value: 100 },
-    { title: 'Ticket Promedio', value: 4 }
+   const secciones = [
+    { label: 'Resumen General', icon: <DashboardIcon />, component: <SeccionResumen filtros={filtros} sucursalId={sucursalId} /> },
+    { label: 'Calificaciones', icon: <StarIcon />, component: <SeccionCalificaciones filtros={filtros} sucursalId={sucursalId} /> },
+    { label: 'Inventario', icon: <InventoryIcon />, component: <SeccionInventario sucursalId={sucursalId} /> },
+    { label: 'Pedidos', icon: <RestaurantIcon />, component: <SeccionPedidos filtros={filtros} sucursalId={sucursalId} /> },
+    { label: 'Reservas', icon: <EventIcon />, component: <SeccionReservas filtros={filtros} sucursalId={sucursalId} /> },
+    { label: 'Ventas', icon: <AttachMoney />, component: <SeccionVentas filtros={filtros} sucursalId={sucursalId} /> }
   ];
 
-  return (
- 
+  // Obtener sucursalId del localStorage al cargar
+  useEffect(() => {
+    const sucursal = localStorage.getItem('sucursalId');
+    if (sucursal) {
+      const sucursalIdNum = parseInt(sucursal, 10);
+      if (!isNaN(sucursalIdNum)) {
+        setSucursalId(sucursalIdNum);
+      }
+    }
+  }, []);
 
-    <Container maxWidth="xl" sx={{ mt: 0 }}>
+  const handleCambioSeccion = (event, nuevoValor) => {
+    setSeccionActiva(nuevoValor);
+  };
+
+  const handleFiltrosChange = (nuevosFiltros) => {
+    setFiltros(nuevosFiltros);
+  };
+
+  if (!sucursalId) {
+    return (
+      <Container maxWidth="xl" sx={{ mt: 2 }}>
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            No se ha configurado la sucursal
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
+
+   return (
+    <Container maxWidth="xl" sx={{ mt: 2, backgroundColor: colors.background.default, minHeight: '100vh', py: 2 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
-        <Box>
-          <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-            Dashboard
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary">
-            Resumen del día a día y métricas clave
-          </Typography>
-        </Box>
-
-        {/* Botones de acción */}
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant="contained"
-            size="large"
-            startIcon={<PictureAsPdfIcon />}
-            onClick={() => { console.log('Reporte de Dashboard'); }}
-            sx={{
-              backgroundColor: '#588157',
-              color: 'white',
-              fontWeight: 'bold',
-              px: 3,
-              '&:hover': {
-                backgroundColor: '#486a47'
-              }
-            }}
-          >
-            Ver reporte completo
-          </Button>
-        </Box>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom sx={{ color: colors.primary.main }}>
+          Dashboard
+        </Typography>
+        <Typography variant="subtitle1" sx={{ color: colors.text.secondary }}>
+          Monitorea el desempeño de tu restaurante en tiempo real
+        </Typography>
       </Box>
-    
-      {/* Aquí iría el contenido principal del Dashboard */}
-      <CardDashboard statsData={statsData} />
-      <CardInventario />
-      <CardMesas />
+
+      {/* Filtros Globales */}
+      <FiltrosDashboard 
+        filtros={filtros}
+        onFiltrosChange={handleFiltrosChange}
+        sucursalId={sucursalId}
+      />
+
+      {/* Tabs de Secciones */}
+      <Paper sx={{ 
+        mb: 3, 
+        backgroundColor: colors.background.paper,
+        border: `1px solid ${colors.border.light}`
+      }}>
+        <Tabs
+          value={seccionActiva}
+          onChange={handleCambioSeccion}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            '& .MuiTab-root': {
+              color: colors.text.secondary,
+              '&.Mui-selected': {
+                color: colors.primary.main,
+              }
+            },
+            '& .MuiTabs-indicator': {
+              backgroundColor: colors.primary.main,
+            }
+          }}
+        >
+          {secciones.map((seccion, index) => (
+            <Tab
+              key={index}
+              label={seccion.label}
+              icon={seccion.icon}
+              iconPosition="start"
+            />
+          ))}
+        </Tabs>
+      </Paper>
+
+      {/* Contenido de la Sección Activa */}
+      <Box>
+        {secciones[seccionActiva].component}
+      </Box>
     </Container>
   );
 };
 
-export default Dashboard;
+
+export default DashboardPrincipal;
