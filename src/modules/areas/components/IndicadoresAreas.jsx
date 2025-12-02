@@ -61,7 +61,7 @@ const IndicadoresAreas = () => {
     },
   ];
 
-  const numberColors = [colores.accent.main, colores.accent.main, colores.accent.main];
+  const numberColors = [colores.primary.dark, colores.primary.dark, colores.primary.dark];
     return (
 
     <Box mt={4} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%' }}>

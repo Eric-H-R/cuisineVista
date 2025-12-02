@@ -17,7 +17,9 @@ import {
   Tooltip,
   ToggleButton,
   ToggleButtonGroup,
-  Stack
+  Stack,  Button,
+  Divider,
+  colors
 } from "@mui/material";
 import { useAuth } from "../../../context/AuthContext";
 import { useEffect, useState } from "react";
@@ -32,6 +34,8 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import { toast } from "react-toastify";
 import ConfirmDialog from "../../../components/Common/ConfirmDialog";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import colores from "../../../theme/colores";
 
 // Hook personalizado para manejar la vista
 const useViewMode = () => {
@@ -72,14 +76,7 @@ const CardAreas = () => {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [areaToDelete, setAreaToDelete] = useState(null);
 
-    const colors = {
-        primary: '#588157',     
-        secondary: '#A3B18A',    
-        accent: '#57300D',       
-        background: '#F8F9FA',   
-        paper: '#EDE0D4',        
-        text: '#333333'          
-    };
+   
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -242,130 +239,120 @@ const CardAreas = () => {
 
     // Componente para la card en vista de cuadrícula
     const GridCard = ({ area }) => (
-        <Card 
-            elevation={0}
-            sx={{ 
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 2,
-                background: 'white',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                    borderColor: 'primary.main',
-                    backgroundColor: 'action.hover'
-                }
+      <Card
+        elevation={0}
+        sx={{
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          border: "1px solid",
+         borderColor: colores.primary.light,
+          borderRadius: 2,
+          background: "white",
+          transition: "all 0.2s ease",
+          "&:hover": {
+            borderColor: colores.primary.main,
+            backgroundColor: colores.background.default,
+          },
+        }}
+      >
+        <CardContent sx={{ flexGrow: 1, p: 3, pb: 2 }}>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            
+          >
+            <Typography
+              variant="h6"
+              component="h2"
+              sx={{
+                fontWeight: "400",
+                color: colores.primary.main
+              }}
+            >
+              {area.nombre}
+            </Typography>
+            <Chip
+              label={area.es_activa ? "Activa" : "Inactiva"}
+              size="small"
+              variant="outlined"
+              color={area.es_activa ? colores.primary.main : "default"}
+              sx={{
+                fontSize: "0.7rem",
+                height: 24,
+              }}
+            />
+          </Box>
+
+          <Typography
+            variant="body2"
+            color={colores.text.secondary}
+            sx={{
+             
+              minHeight: "40px",
+                lineHeight: 1.4,
             }}
+          >
+            {area.descripcion || "Sin descripción"}
+          </Typography>
+          <Divider sx={{ my: 1, borderColor: '#E0E0E0' }} />
+        </CardContent>
+ 
+        <Box
+          sx={{
+            p: 2,
+            pt: 0,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-            <CardContent sx={{ flexGrow: 1, p: 3, pb: 2 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                    <Typography 
-                        variant="h6" 
-                        component="h2"
-                        sx={{ 
-                            fontWeight: '400',
-                            color: 'text.primary'
-                        }}
-                    >
-                        {area.nombre}
-                    </Typography>
-                    <Chip 
-                        label={area.es_activa ? "Activa" : "Inactiva"} 
-                        size="small"
-                        variant="outlined"
-                        color={area.es_activa ? "primary" : "default"}
-                        sx={{ 
-                            fontSize: '0.7rem',
-                            height: 24
-                        }}
-                    />
-                </Box>
+        
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Tooltip title="Editar">
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<EditIcon sx={{ fontSize: 18 }} />}
+                onClick={() => handleEdit(area)}
+                disabled={loadingActions[area.id_area]}
+                sx={{
+                  color: "#588157",
+                  borderColor: "#588157",
+                  "&:hover": {
+                    backgroundColor: "#588157",
+                    color: "white",
+                  },
+                }}
+              >
+                Editar
+              </Button>
+            </Tooltip>
 
-                <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
-                    sx={{ 
-                        mb: 2,
-                        minHeight: '40px',
-                        lineHeight: 1.4
-                    }}
-                >
-                    {area.descripcion || "Sin descripción"}
-                </Typography>
-            </CardContent>
-
-            <Box sx={{ 
-                p: 2, 
-                pt: 0, 
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-                <Typography variant="caption" color="text.secondary">
-                    ID: {area.id_area}
-                </Typography>
-                
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Tooltip title={area.es_activa ? "Desactivar" : "Activar"}>
-                        <IconButton
-                            onClick={() => handleToggleStatus(area.id_area, area.es_activa)}
-                            disabled={loadingActions[area.id_area]}
-                            size="small"
-                            sx={{ 
-                                color: area.es_activa ? 'primary.main' : 'text.secondary',
-                                '&:hover': {
-                                    backgroundColor: 'action.hover'
-                                }
-                            }}
-                        >
-                            {loadingActions[area.id_area] ? (
-                                <CircularProgress size={20} />
-                            ) : area.es_activa ? (
-                                <ToggleOnIcon />
-                            ) : (
-                                <ToggleOffIcon />
-                            )}
-                        </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="Editar">
-                        <IconButton
-                            onClick={() => handleEdit(area)}
-                            disabled={loadingActions[area.id_area]}
-                            size="small"
-                            sx={{ 
-                                color: 'text.secondary',
-                                '&:hover': {
-                                    backgroundColor: 'action.hover',
-                                    color: 'primary.main'
-                                }
-                            }}
-                        >
-                            <EditIcon />
-                        </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="Eliminar">
-                        <IconButton
-                            onClick={() => handleOpenDeleteDialog(area.id_area)}
-                            disabled={loadingActions[area.id_area]}
-                            size="small"
-                            sx={{ 
-                                color: 'text.secondary',
-                                '&:hover': {
-                                    backgroundColor: 'action.hover',
-                                    color: 'error.main'
-                                }
-                            }}
-                        >
-                            <DeleteIcon />
-                        </IconButton>
-                    </Tooltip>
-                </Box>
-            </Box>
-        </Card>
+            <Tooltip title="Eliminar">
+             
+                <Button
+        variant="outlined"
+        size="small"
+        color="error"
+        disabled={loadingActions[area.id_area]}
+        startIcon={<DeleteOutlineIcon sx={{ fontSize: 18 }} />}
+        onClick={() => handleOpenDeleteDialog(area.id_area)}
+        sx={{
+          "&:hover": {
+            backgroundColor: "#B22222",
+            color: "white",
+          },
+        }}
+      >
+        Eliminar
+      </Button>
+              
+            </Tooltip>
+          </Box>
+        </Box>
+      </Card>
     );
 
     // Componente para el item en vista de lista
@@ -376,13 +363,13 @@ const CardAreas = () => {
                 display: 'flex',
                 alignItems: 'center',
                 border: '1px solid',
-                borderColor: 'primary.light',
+                borderColor: colores.primary.dark,
                 borderRadius: 2,
                 backgroundColor: 'white',
                 transition: 'all 0.2s ease',
                 '&:hover': {
-                    borderColor: 'primary.main',
-                    backgroundColor: 'action.hover'
+                    borderColor: colores.primary.main,
+                    backgroundColor: colores.background.default,
                 },
                 mb: 1
             }}
@@ -394,7 +381,7 @@ const CardAreas = () => {
                             variant="h6" 
                             sx={{ 
                                 fontWeight: '400',
-                                color: 'text.primary'
+                                color: colores.primary.dark,
                             }}
                         >
                             {area.nombre}
@@ -403,7 +390,7 @@ const CardAreas = () => {
                             label={area.es_activa ? "Activa" : "Inactiva"} 
                             size="small"
                             variant="outlined"
-                            color={area.es_activa ? "primary" : "default"}
+                            color={area.es_activa ? colores.primary.dark : "default"}
                             sx={{ 
                                 fontSize: '0.7rem',
                                 height: 24
@@ -422,33 +409,11 @@ const CardAreas = () => {
                         {area.descripcion || "Sin descripción"}
                     </Typography>
                     
-                    <Typography variant="caption" color="text.secondary">
-                        ID: {area.id_area}
-                    </Typography>
+                  
                 </Box>
 
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Tooltip title={area.es_activa ? "Desactivar" : "Activar"}>
-                        <IconButton
-                            onClick={() => handleToggleStatus(area.id_area, area.es_activa)}
-                            disabled={loadingActions[area.id_area]}
-                            size="small"
-                            sx={{ 
-                                color: area.es_activa ? 'primary.main' : 'text.secondary',
-                                '&:hover': {
-                                    backgroundColor: 'action.hover'
-                                }
-                            }}
-                        >
-                            {loadingActions[area.id_area] ? (
-                                <CircularProgress size={20} />
-                            ) : area.es_activa ? (
-                                <ToggleOnIcon />
-                            ) : (
-                                <ToggleOffIcon />
-                            )}
-                        </IconButton>
-                    </Tooltip>
+                    
 
                     <Tooltip title="Editar">
                         <IconButton
@@ -456,10 +421,10 @@ const CardAreas = () => {
                             disabled={loadingActions[area.id_area]}
                             size="small"
                             sx={{ 
-                                color: 'text.secondary',
+                                color: colores.primary.dark,
                                 '&:hover': {
                                     backgroundColor: 'action.hover',
-                                    color: 'primary.main'
+                                    color: colores.primary.main
                                 }
                             }}
                         >
@@ -520,7 +485,9 @@ const CardAreas = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     borderBottom: '1px solid',
-                    borderColor: 'divider'
+                    borderColor: colores.primary.dark,
+                    backgroundColor: colores.primary.dark,
+                    color: 'white'
                 }}>
                     <Typography variant="h6" fontWeight="400">
                         Editar área
@@ -528,11 +495,12 @@ const CardAreas = () => {
                     <IconButton 
                         onClick={handleCloseEdit}
                         size="small"
-                        sx={{ color: 'text.secondary' }}
+                        sx={{ color: 'white' }}
                     >
                         <CloseIcon />
                     </IconButton>
                 </DialogTitle>
+                
 
                 <Box sx={{ p: 3 }}>
                     <Box component="form" onSubmit={handleSubmitEdit}>
@@ -577,31 +545,7 @@ const CardAreas = () => {
                                 }}
                             />
                             
-                            <Box sx={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'space-between',
-                                p: 2,
-                                border: '1px solid',
-                                borderColor: 'divider',
-                                borderRadius: 1
-                            }}>
-                                <Box>
-                                    <Typography variant="body1" fontWeight="400">
-                                        Área activa
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {areaEditada.es_activa ? 'Disponible para uso' : 'No disponible'}
-                                    </Typography>
-                                </Box>
-                                <Switch
-                                    name="es_activa"
-                                    checked={areaEditada.es_activa}
-                                    onChange={handleInputChange}
-                                    disabled={editLoading}
-                                    color="primary"
-                                />
-                            </Box>
+                           
                             
                             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 2 }}>
                                 <Typography 
@@ -614,26 +558,28 @@ const CardAreas = () => {
                                         px: 2,
                                         borderRadius: 1,
                                         '&:hover': {
-                                            backgroundColor: 'action.hover'
+                                            backgroundColor: colores.background.paper
                                         }
                                     }}
                                 >
                                     Cancelar
                                 </Typography>
                                 
+                                
                                 <Typography 
                                     variant="button" 
                                     type="submit"
-                                    disabled={editLoading}
+                                    onClick={handleSubmitEdit}
                                     sx={{ 
-                                        color: 'primary.main',
+                                        color: 'white',
                                         cursor: editLoading ? 'default' : 'pointer',
                                         py: 1,
                                         px: 2,
                                         borderRadius: 1,
-                                        backgroundColor: editLoading ? 'action.disabled' : 'transparent',
+                                        backgroundColor: colores.primary.main,
                                         '&:hover': {
-                                            backgroundColor: editLoading ? 'action.disabled' : 'action.hover'
+                                            backgroundColor: colores.primary.dark,
+                                            color: 'white'
                                         }
                                     }}
                                 >

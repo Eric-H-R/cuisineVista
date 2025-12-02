@@ -9,20 +9,6 @@ export const MenuService = {
     update: (id, data) => API.put(`/categorias/${id}`, data),
     delete: (id) => API.delete(`/categorias/${id}`),
     getAll: (params = {}) => API.get("/categorias", { params })
-    /* respuesta 
-    {
-    "data": [
-        {
-            "created_at": "2025-11-09 02:21:19",
-            "descripcion": "Platillos de desayuno act",
-            "es_activa": true,
-            "id_categoria": 1,
-            "nombre": "Desayunos act",
-            "updated_at": null
-        }
-    ],
-    "success": true
-}*/
 };
 
 export default MenuService;

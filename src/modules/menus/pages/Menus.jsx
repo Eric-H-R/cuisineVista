@@ -27,19 +27,10 @@ const Menus = () => {
   const { sucursal } = useAuth();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [combos, setCombos] = useState([]);
-
   // Stats will be computed from fetched data (basic placeholders until more APIs exist)
   const statsData = [
-    { title: 'Total Productos', value: products.length },
-    { title: 'Combos Activos', value: combos.filter(c => c.status).length },
     { title: 'Categorías', value: categories.length },
   ];
-
-  const handleNewProduct = () => {
-    console.log('Abrir modal para nuevo producto');
-  };
 
   //Agregar Categoría Modal state
   const [openAdd, setOpenAdd] = useState(false);
@@ -183,6 +174,7 @@ const Menus = () => {
         }));
 
         setCategories(mapped);
+        console.log('Categorías cargadas:', mapped);
       } catch (error) {
         console.error('Error cargando menús:', error);
         toast.error('Error cargando menús');
@@ -246,7 +238,6 @@ const Menus = () => {
                   category={category}
                   onEdit={handleOpenEdit}
                   onToggle={(cat) => handleOpenEdit({ ...cat, status: !cat.status })}
-                  onViewProducts={() => {}}
                   onDelete={handleOpenDelete}
                 />
               </Grid>

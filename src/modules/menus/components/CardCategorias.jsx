@@ -11,123 +11,75 @@ import {
 } from '@mui/material';
 import CategoryIcon from '@mui/icons-material/Category';
 import EditIcon from '@mui/icons-material/Edit';
-import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import DeleteIcon from '@mui/icons-material/Delete';
 import PropTypes from 'prop-types';
+import LocalDiningIcon from '@mui/icons-material/LocalDining';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
-const CardCategoria = ({ category, onEdit, onViewProducts, onDelete }) => {
+const CardCategoria = ({ category, onEdit, onDelete }) => {
   return (
-    <Card sx={{ 
-      borderRadius: 2, 
-      height: '100%',
-      border: '1px solid',
-      borderColor: '#E0E0E0',
-      backgroundColor: '#F8F9FA'
-    }}>
-      <CardContent sx={{ p: 3 }}>
-        {/* Header de la categoría */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar sx={{ width: 48, height: 48, mr: 2, bgcolor: '#57300D' }}>
-              <CategoryIcon />
-            </Avatar>
-            <Box>
-              <Typography variant="h6" component="h3" fontWeight="bold" color="#333333">
-                {category.name}
-              </Typography>
-              <Typography variant="body2" color="#57300D">
-                {category.description}
-                {console.log(category)}
-              </Typography>
-            </Box>
-          </Box>
-          <Chip 
-            label={category.status ? 'Activa' : 'Inactiva'}
-            color={category.status ? 'success' : 'default'}
-            size="small"
-          />
-        </Box>
-
-        <Divider sx={{ my: 2, borderColor: '#E0E0E0' }} />
-
-        {/* Estadísticas */}
-        <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="body2" color="#57300D">
-              Productos:
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <RestaurantMenuIcon sx={{ fontSize: 16, mr: 0.5, color: '#57300D' }} />
-              <Typography variant="body1" fontWeight="bold">
-                {category.productCount}
-              </Typography>
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="body2" color="#57300D">
-              Ventas Hoy:
-            </Typography>
-            <Typography variant="body1" fontWeight="bold">
-              {category.salesToday}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body2" color="#57300D">
-              Ingresos Hoy:
-            </Typography>
-            <Typography variant="body1" fontWeight="bold" color="#588157">
-              ${category.incomeToday.toLocaleString()}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Divider sx={{ my: 2, borderColor: '#E0E0E0' }} />
-
-        {/* Botones de acción */}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button 
-            variant="outlined" 
-            startIcon={<EditIcon />}
-            size="small"
-            onClick={() => onEdit ? onEdit(category) : null}
-            sx={{
-              color: '#588157',
-              borderColor: '#588157',
-              '&:hover': {
-                backgroundColor: '#588157',
-                color: 'white'
-              }
-            }}
-          >
-            Editar
-          </Button>
-          <Button 
-            variant="outlined" 
-            size="small"
-            onClick={() => onViewProducts ? onViewProducts(category) : null}
-            sx={{
-              color: '#57300D',
-              borderColor: '#57300D',
-              '&:hover': {
-                backgroundColor: '#57300D',
-                color: 'white'
-              }
-            }}
-          >
-            Ver Productos
-          </Button>
-          
-          <Button
-            variant="outlined"
-            size="small"
-            color="error"
-            onClick={() => onDelete ? onDelete(category) : null}
-            sx={{ ml: 1 }}
-          >
-            Eliminar
-          </Button>
-        </Box>
-      </CardContent>
-    </Card>
+    <Card sx={{
+  borderRadius: 2,
+  height: '100%',
+  border: '1px solid',
+  borderColor: '#E8E0D5', // Café claro
+  boxShadow: 'none',
+  transition: 'all 0.2s ease',
+  
+}}>
+  <CardContent sx={{
+    p: 2,
+    display: 'grid',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'justify', }}>
+      
+      <Box>
+        <Typography variant="h5" fontWeight={600} color="#5D4037"> {/* Café oscuro */}
+          {category.name}
+        </Typography>
+        <Typography variant="subtitle2" color="#8B7355" sx={{ display: 'block', }}>
+          {category.description}
+        </Typography>
+      </Box>
+    </Box>
+    <Divider sx={{ my: 1, borderColor: '#E0E0E0', mb:4 }} />
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
+      <Button
+        variant="outlined"
+        size="small"
+        startIcon={<EditIcon sx={{ fontSize: 18 }} />}
+        onClick={() => onEdit?.(category)}
+         sx={{
+          color: "#588157",
+          borderColor: "#588157",
+          "&:hover": {
+            backgroundColor: "#588157",
+            color: "white",
+          },
+        }}
+      >
+        Editar
+      </Button>
+      <Button
+        variant="outlined"
+        size="small"
+        color="error"
+        startIcon={<DeleteOutlineIcon sx={{ fontSize: 18 }} />}
+        onClick={() => onDelete?.(category)}
+        sx={{
+          "&:hover": {
+            backgroundColor: "#B22222",
+            color: "white",
+          },
+        }}
+      >
+        Eliminar
+      </Button>
+    </Box>
+  </CardContent>
+</Card>
   );
 };
 
@@ -146,7 +98,6 @@ CardCategoria.propTypes = {
 CardCategoria.defaultProps = {
   onEdit: null,
   onToggle: null,
-  onViewProducts: null,
   onDelete: null
 };
 

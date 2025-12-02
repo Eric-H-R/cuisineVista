@@ -6,16 +6,17 @@ import {
   Typography
 } from '@mui/material';
 import PropTypes from 'prop-types';
+import colores from '../../../theme/colores';
 
 const StatsCards = ({ cardsData }) => {
   return (
-   <Box sx={{ display: 'flex', gap: 2, mt:2, mb:4 }}>
+   <Box mt={4} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%', mt:2, mb:4 }}>
       {cardsData.map((card, index) => {
         // Array de colores diferentes para cada número
-        const numberColors = ['#2E7D32', '#1976D2', '#7B1FA2', '#D32F2F'];
+        const numberColors = [colores.primary.dark, colores.primary.dark, colores.primary.dark, colores.primary.dark];
         
         return (
-          <Card key={index} sx={{ flex: 1, textAlign: 'center', padding: 2, mt:4, borderRadius: 2 }} >
+          <Card key={index} sx={{ borderRadius: 4, width: '35%', boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',  background: 'linear-gradient(to bottom, #ce8c4e10 0%, #ede0d436 100%)'}} >
             <CardContent sx={{ height: '100%', textAlign: 'center' }}>
               <Typography 
                 variant="h5" 

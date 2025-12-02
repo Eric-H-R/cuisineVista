@@ -105,7 +105,8 @@ const FormsMesas = ({ selectedMesa = null, onMesaAdded, onMesaUpdated, onMesaDel
         capacidad: editMesa.capacidad ? parseInt(editMesa.capacidad) : null,
         descripcion: editMesa.descripcion.trim()
       };
-      const res = await MesasService.update(selectedMesa.id, payload);
+      const selectedId = selectedMesa?.id_mesa ?? selectedMesa?.id;
+      const res = await MesasService.update(selectedId, payload);
       toast.success('Mesa actualizada');
       if (onMesaUpdated) onMesaUpdated(res.data);
       setTimeout(() => {
@@ -124,7 +125,8 @@ const FormsMesas = ({ selectedMesa = null, onMesaAdded, onMesaUpdated, onMesaDel
     if (!selectedMesa) return toast.error('Selecciona una mesa para eliminar');
     try {
       setLoadingDelete(true);
-      await MesasService.delete(selectedMesa.id);
+      const selectedId = selectedMesa?.id_mesa ?? selectedMesa?.id;
+      await MesasService.delete(selectedId);
       toast.success('Mesa eliminada');
       if (onMesaDeleted) onMesaDeleted(selectedMesa.id);
       setTimeout(() => {

@@ -53,7 +53,7 @@ const IndicadoresMesas = () => {
         },
     ];
 
-    const numberColors = [colors.accent.main, colors.accent.main, colors.accent.main];
+    const numberColors = [colors.primary.dark, colors.primary.dark, colors.primary.dark];
     return (
        <Box mt={4} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%' }}>
         {MesasCardData.map((card, index) => (
