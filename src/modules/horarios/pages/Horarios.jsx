@@ -256,7 +256,7 @@ const Horarios = () => {
         pauseOnHover
         theme="light"
       />
-      <Container maxWidth="xl" sx={{ mt: 0 }}>
+      <Container maxWidth="xl" sx={{ mt: 2 }}>
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
           <Box>

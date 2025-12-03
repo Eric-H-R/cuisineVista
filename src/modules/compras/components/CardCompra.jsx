@@ -193,7 +193,7 @@ const CardCompra = ({ compra, onCancelar, onCrearRecepcion }) => {
         </Box>
 
         {/* Información de la compra */}
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 2,  }}>
           {/* Proveedor */}
           {compra.proveedor_nombre && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -259,7 +259,10 @@ const CardCompra = ({ compra, onCancelar, onCrearRecepcion }) => {
 
       {/* Dialog con detalle de compra */}
       <Dialog open={openDetalle} onClose={() => setOpenDetalle(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Detalle de compra</DialogTitle>
+        <DialogTitle sx={{bgcolor: colors.primary.dark, color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          Detalle de compra
+          <Cancel sx={{ cursor: 'pointer' }} onClick={() => setOpenDetalle(false)} />
+        </DialogTitle>
         <DialogContent dividers>
           <CompraDetalle compraId={compra.id_compra || compra.id} />
         </DialogContent>

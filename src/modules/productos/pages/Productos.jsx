@@ -180,9 +180,6 @@ const Productos = () => {
           alignItems: 'flex-start', 
           mb: 4,
           p: 3,
-          bgcolor: colors.background.paper,
-          borderRadius: 2,
-          border: `1px solid ${colors.border.light}`
         }}>
           <Box>
             <Typography variant="h4" component="h1" fontWeight="bold" color={colors.text.primary}>

@@ -146,7 +146,6 @@ const CardProducto = ({ producto, onEdit, onEliminar }) => {
 
         {/* Precio (ACTUALIZADO) */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <MoneyIcon sx={{ fontSize: 18, color: colors.status.success, mr: 1 }} />
           <Typography variant="h6" color={colors.status.success} fontWeight="bold">
             {formatPrecio(producto.precio)}
           </Typography>
@@ -266,7 +265,7 @@ const CardProducto = ({ producto, onEdit, onEliminar }) => {
       <CardActions sx={{ 
         justifyContent: 'space-between', 
         pt: 0,
-        bgcolor: colors.background.paper
+        
       }}>
         <Box>
           <Button

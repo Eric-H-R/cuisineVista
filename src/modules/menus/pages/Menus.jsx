@@ -17,12 +17,15 @@ import BarraBusqueda from '../components/BarraBusqueda';
 import CategoryCard from '../components/CardCategorias';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
+import ConfirmDialog from '../../../components/Common/ConfirmDialog';
 
 import { useEffect, useState } from 'react';
 import MenuService from '../services/MenuService';
 import { useAuth } from '../../../context/AuthContext';
 import LoadingComponent from '../../../components/Loadings/LoadingComponent';
 import { toast } from 'react-toastify';
+
+import colores from '../../../theme/colores';
 
 const Menus = () => {
   const { sucursal } = useAuth();
@@ -141,7 +144,7 @@ const Menus = () => {
     setCategoryToDelete(null);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (motivo) => {
     if (!categoryToDelete) return;
     try {
       await MenuService.delete(categoryToDelete.id);
@@ -205,26 +208,20 @@ const Menus = () => {
         {/* Botones de acción */}
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button
-            variant="outlined"
+            variant="contained"
             size="large"
             startIcon={<AddIcon />}
             onClick={handleOpenAdd}
             sx={{
-              color: '#57300D',
-              borderColor: '#57300D',
-              fontWeight: 'bold'
+              color: 'white',
+              bgcolor: colores.primary.dark ,fontWeight: 'bold',
+              '&:hover': { bgcolor: colores.primary.main },
             }}
           >
             Agregar Categoría
           </Button>
         </Box>
       </Box>
-
-      {/* Cards de estadísticas */}
-      <StatsCards cardsData={statsData} />
-
-      {/*Barra de búsqueda y filtros */}
-      <BarraBusqueda />
 
       {/* Categorías: listado con edición y eliminación */}
       {loading ? (
@@ -252,22 +249,22 @@ const Menus = () => {
 
       {/* Edit Category Modal */}
       <Dialog open={!!editingCategory} onClose={handleCloseEdit} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ backgroundColor: '#588157', color: 'white' }}>Editar Categoría</DialogTitle>
+        <DialogTitle sx={{ backgroundColor: colores.primary.dark, color: 'white' }}>Editar Categoría</DialogTitle>
         <Box component="form" onSubmit={handleSubmitEdit} sx={{ p: 3 }}>
           <TextField name="name" label="Nombre" fullWidth value={editValues.name} onChange={handleEditChange} sx={{ mb: 2 }} />
           <TextField name="description" label="Descripción" fullWidth multiline rows={3} value={editValues.description} onChange={handleEditChange} sx={{ mb: 2 }} />
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button onClick={handleCloseEdit}>Cancelar</Button>
-            <Button type="submit" variant="contained" disabled={editLoading} sx={{ backgroundColor: '#57300D' }}>{editLoading ? 'Guardando...' : 'Guardar'}</Button>
+            <Button onClick={handleCloseEdit} sx={{color: colores.accent.dark, '&:hover': { color: colores.accent.main, bgcolor: colores.background.paper }}}>Cancelar</Button>
+            <Button type="submit" variant="contained" disabled={editLoading} sx={{ backgroundColor: colores.primary.main, '&:hover': { backgroundColor: colores.primary.dark } }}>{editLoading ? 'Guardando...' : 'Guardar'}</Button>
           </Box>
         </Box>
       </Dialog>
 
       {/* Agregar Categoría Modal */}
       <Dialog open={openAdd} onClose={handleCloseAdd} fullWidth maxWidth="md" PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ backgroundColor: '#588157', color: 'white', py: 2 }}>
+        <DialogTitle sx={{ backgroundColor: colores.primary.dark, color: 'white', py: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar sx={{ bgcolor: '#A3B18A', color: '#588157', width: 48, height: 48 }}>
+            <Avatar sx={{ bgcolor: 'white', color: colores.primary.dark, width: 48, height: 48 }}>
               <AddIcon sx={{ fontSize: 32 }} />
             </Avatar>
             <Box>
@@ -280,23 +277,21 @@ const Menus = () => {
           <TextField name="nombre" label="Nombre de la Categoría *" value={newCategory.nombre} onChange={handleNewCategoryChange} fullWidth required sx={{ mb: 2 }} />
           <TextField name="descripcion" label="Descripción" value={newCategory.descripcion} onChange={handleNewCategoryChange} fullWidth multiline rows={3} sx={{ mb: 2 }} />
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button onClick={handleCloseAdd}>Cancelar</Button>
-            <Button type="submit" variant="contained" disabled={loadingAdd} startIcon={loadingAdd ? <CircularProgress size={18} /> : null} sx={{ backgroundColor: '#57300D' }}>{loadingAdd ? 'Guardando...' : 'Guardar Categoría'}</Button>
+            <Button onClick={handleCloseAdd} sx={{color: colores.accent.dark, '&:hover': { color: colores.accent.main, bgcolor: colores.background.paper }}}>Cancelar</Button>
+            <Button type="submit" variant="contained" disabled={loadingAdd} startIcon={loadingAdd ? <CircularProgress size={18} /> : null} sx={{ backgroundColor: colores.primary.main, '&:hover': { backgroundColor: colores.primary.dark } }}>{loadingAdd ? 'Guardando...' : 'Guardar Categoría'}</Button>
           </Box>
         </Box>
       </Dialog>
 
-      {/* Delete Confirm Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={handleCloseDelete}>
-        <DialogTitle>Eliminar Categoría</DialogTitle>
-        <Box sx={{ p: 3 }}>
-          <Typography>¿Estás seguro de eliminar la categoría "{categoryToDelete?.name}"?</Typography>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
-            <Button onClick={handleCloseDelete}>Cancelar</Button>
-            <Button variant="contained" color="error" onClick={handleConfirmDelete}>Eliminar</Button>
-          </Box>
-        </Box>
-      </Dialog>
+      {/* Delete Confirm Dialog (shared) */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDelete}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar Categoría"
+        message={`¿Estás seguro de eliminar la categoría no se podrá revertir esta acción"?`}
+        showMotivoInput={false}
+      />
       
     </Container>
   );

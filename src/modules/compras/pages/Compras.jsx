@@ -493,26 +493,15 @@ const Compras = () => {
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, gap: 2 }}>
           <Box>
-            <Typography variant="h5" component="h1" fontWeight={700} gutterBottom sx={{ color: colors.text.primary }}>
+             <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
               Gestión de Compras y Recepciones
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="subtitle1" color="text.secondary">
               Administra las compras, recepciones e inventario del restaurante
             </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <Chip
-              label={`Sucursal: ${sucursalId ?? 'No configurada'}`}
-              sx={{
-                bgcolor: sxBg(colors.background.light),
-                borderRadius: 1,
-                px: 1.5,
-                py: 0.5,
-                fontWeight: 600
-              }}
-            />
-
             <Button
               variant="contained"
               size="large"
@@ -566,7 +555,7 @@ const Compras = () => {
               initialCompraId={recepcionCompraId}
             />
 
-            <Box sx={{ my: 2 }}>
+            <Box sx={{ my: 3 }}>
               <CardEstadisticas cardsData={statsData} />
             </Box>
 

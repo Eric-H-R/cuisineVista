@@ -25,7 +25,7 @@ const IndicadoresComponent = ({ combos = [] }) => {
   const numberColors = [colores.accent.main, colores.accent.main, colores.accent.main];
 
   return (
-    <Box mt={4} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%' }}>
+    <Box mt={4} sx={{ display: 'flex', gap: 2, justifyContent: 'space-around', width: '100%', mb:5 }}>
       {CombosCardData.map((card, index) => (
         <Card 
           key={index}

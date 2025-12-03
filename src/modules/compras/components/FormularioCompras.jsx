@@ -209,7 +209,7 @@ const FormularioCompras = ({ open, onClose, onSave, loading, sucursalId }) => {
         <DialogTitle sx={{ 
           backgroundColor: colors.primary.main,
           color: 'white',
-          py: 2
+         
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <ShoppingCart sx={{ mr: 1 }} />
@@ -217,7 +217,7 @@ const FormularioCompras = ({ open, onClose, onSave, loading, sucursalId }) => {
           </Box>
         </DialogTitle>
 
-        <DialogContent sx={{ py: 3 }}>
+        <DialogContent sx={{ py: 3, mt:3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             {/* Selección de proveedor */}
             <TextField
@@ -264,7 +264,13 @@ const FormularioCompras = ({ open, onClose, onSave, loading, sucursalId }) => {
                   startIcon={<Add />}
                   onClick={agregarDetalle}
                   disabled={loadingInsumos || insumos.length === 0}
-                  type="button" // Importante: evitar que sea submit
+                  type="button"
+                  sx={{bgcolor: colors.primary.main,
+                    color: 'white',
+                    '&:hover': {
+                      bgcolor: colors.primary.dark
+                    }
+                  }}
                 >
                   Agregar Insumo
                 </Button>
@@ -398,12 +404,14 @@ const FormularioCompras = ({ open, onClose, onSave, loading, sucursalId }) => {
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, py: 2 }}>
+        <DialogActions sx={{ px: 3, py: 2, borderTop: `1px solid ${colors.border.light}` }}>
           <Button 
             onClick={onClose}
             disabled={loading}
             sx={{
-              color: colors.text.secondary
+              color: colors.accent.main,
+              borderColor: colors.accent.main,
+              '&:hover': { backgroundColor: colors.background.paper  }
             }}
             type="button" // Importante: evitar que sea submit
           >

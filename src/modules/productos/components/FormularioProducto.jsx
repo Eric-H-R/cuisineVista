@@ -656,7 +656,7 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
             {!productoToEdit && (
               <Box sx={{ 
                 p: 2, 
-                bgcolor: colors.background.paper,
+                bgcolor: colors.background.default,
                 borderRadius: 1,
                 border: `1px dashed ${colors.border.main}`
               }}>
@@ -717,10 +717,10 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
                         onClick={agregarItemReceta}
                         disabled={loading || !nuevoItem.insumo_id || !nuevoItem.cantidad}
                         sx={{
-                          bgcolor: colors.secondary.main,
-                          color: colors.secondary.contrastText,
+                          bgcolor: colors.primary.main,
+                          color: 'white',
                           '&:hover': {
-                            bgcolor: colors.secondary.dark
+                            bgcolor: colors.primary.dark
                           }
                         }}
                       >
@@ -738,7 +738,6 @@ const FormularioProducto = ({ open, onClose, onSave, productoToEdit, loading }) 
         <DialogActions sx={{ 
           px: 3, 
           py: 2,
-          bgcolor: colors.background.paper,
           borderTop: `1px solid ${colors.border.light}`
         }}>
           <Button
