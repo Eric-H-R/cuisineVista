@@ -300,7 +300,7 @@ const FormularioCompras = ({ open, onClose, onSave, loading, sucursalId }) => {
                             <MenuItem value="">Selecciona un insumo</MenuItem>
                             {insumos.map((insumo) => (
                               <MenuItem key={insumo.id_insumo || insumo.id} value={insumo.id_insumo || insumo.id}>
-                                {insumo.nombre} ({insumo.unidad_clave})
+                                {insumo.nombre} ({insumo.unidad_medida.clave})
                               </MenuItem>
                             ))}
                           </TextField>

@@ -12,7 +12,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import InputAdornment from '@mui/material/InputAdornment';
 import { Box, Grid, FormControl, TextField,FormControlLabel,Checkbox,Button, Typography, Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { messaging } from '../../../../firebase';
 import { getToken, onMessage } from "firebase/messaging";
@@ -344,13 +343,6 @@ const [usuario, setUsuario] = useState("");
                   </Typography>
                 )}
               </FormControl>
-
-              <FormControlLabel
-                control={<Checkbox value="recordarme" defaultChecked color="success"/>}
-                label="Remember me"
-                sx={{ color: '#746a5e' , size: 'small'}}
-              />
-
               <Button
                 fullWidth
                 type="submit"
@@ -358,7 +350,7 @@ const [usuario, setUsuario] = useState("");
                 variant="outlined"
                 disabled={loading || !!errors.email || !!errors.password || !usuario.trim() || !password.trim()}
                 sx={{ mb:2,
-                     
+                      mt:3,
                       width: '100%',
                       color: '#463929',
                       borderColor: '#463929',

@@ -87,21 +87,6 @@ const CardRoles = ({ role, onEdit }) => {
         {/* Botones de acción */}
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button 
-            variant="outlined" 
-            startIcon={<EditIcon />}
-            size="small"
-            sx={{
-              color: '#588157',
-              borderColor: '#588157',
-              '&:hover': {
-                backgroundColor: '#588157',
-                color: 'white'
-              }
-            }}
-          >
-            Permisos
-          </Button>
-          <Button 
             variant="contained" 
             startIcon={<EditIcon />}
             onClick={handleEditClick}

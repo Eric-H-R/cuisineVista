@@ -274,11 +274,11 @@ const Cuenta = () => {
                         onClick={handleSaveEdit} 
                         disabled={editLoading}
                         sx={{ 
-                            backgroundColor: colores.accent.light,
+                            backgroundColor: colores.primary.main,
                             borderRadius: 2,
                             px: 3,
                             '&:hover': {
-                                backgroundColor: colores.accent.main
+                                backgroundColor: colores.primary.dark
                             }
                         }}
                     >
@@ -367,11 +367,11 @@ const Cuenta = () => {
                         onClick={handleChangePassword} 
                         disabled={pwLoading}
                         sx={{ 
-                            backgroundColor: colores.accent.light,
+                            backgroundColor: colores.primary.main,
                             borderRadius: 2,
                             px: 3,
                             '&:hover': {
-                                backgroundColor: colores.accent.main
+                                backgroundColor: colores.primary.dark
                             }
                         }}
                     >

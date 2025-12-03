@@ -6,10 +6,8 @@ export const VacacionesService = {
         API.get("/vacaciones/sucursal/" + sucursalId, { params }),
     //obtener solicityd por ID vacaciones/id_solicitud
     getById: (id) => API.get(`/vacaciones/${id}`),
-    // Aprobar solicitud de vacaciones estatus=2
-    aprobar: (id, data) => API.post(`/vacaciones/id_solicitud/${id}/aprobar`, data),
-    // Rechazar solicitud de vacaciones estatus=3
-    rechazar: (id, data) => API.post(`/vacaciones/id_solicitud/${id}/rechazar`, data),
+    aprobar: (id) => API.post(`/vacaciones/${id}/aprobar`),
+    rechazar: (id) => API.post(`/vacaciones/${id}/rechazar`),
 };
 
 export default VacacionesService;

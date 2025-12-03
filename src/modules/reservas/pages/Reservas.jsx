@@ -373,7 +373,7 @@ const handleCrearReserva = async (datosReserva) => {
   }
 };
   return (
-    <Container maxWidth="xl" sx={{ mt: 0, bgcolor: colors.background.default }}>
+    <Container maxWidth="xl" sx={{ mt: 0,  }}>
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -384,7 +384,7 @@ const handleCrearReserva = async (datosReserva) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        
       />
       {/* Header */}
       <Box sx={{ 
@@ -393,9 +393,6 @@ const handleCrearReserva = async (datosReserva) => {
         alignItems: 'flex-start', 
         mb: 4,
         p: 3,
-        bgcolor: colors.background.paper,
-        borderRadius: 2,
-        border: `1px solid ${colors.border.light}`
       }}>
         <Box>
           <Typography variant="h4" component="h1" fontWeight="bold" color={colors.text.primary}>
@@ -432,28 +429,30 @@ const handleCrearReserva = async (datosReserva) => {
       <Box sx={{ 
         mb: 3, 
         p: 2, 
-        bgcolor: colors.background.paper,
-        borderRadius: 2,
-        border: `1px solid ${colors.border.light}`
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, }}>
           <FilterListIcon sx={{ color: colors.primary.main }} />
           <Typography variant="h6" color={colors.text.primary}>
-            Filtros
+            Filtros 
           </Typography>
-          {(filtroArea || filtroCapacidad || filtroEstado) && (
-            <Button 
+           <Button 
               size="small" 
+              
               onClick={limpiarFiltros}
-              sx={{ ml: 'auto', color: colors.primary.main }}
+              sx={{ ml: 'auto', color: colors.primary.main,
+                '&:hover': { color: 'white',
+                  bgcolor: colors.primary.light
+
+                 }
+               }}
             >
               Limpiar filtros
             </Button>
-          )}
-        </Box>
+           </Box>
+        
 
         <Grid container spacing={2}>
-          <Grid size={{xs:12, sm:6, md:3}}>
+          <Grid size={{xs:12, md:6, lg:4}}>
             <FormControl fullWidth size="small">
               <InputLabel>Área</InputLabel>
               <Select
@@ -471,7 +470,7 @@ const handleCrearReserva = async (datosReserva) => {
             </FormControl>
           </Grid>
 
-          <Grid size={{xs:12, sm:6, md:3}}>
+          <Grid size={{xs:12, md:6, lg:4}}>
             <FormControl fullWidth size="small">
               <InputLabel>Capacidad</InputLabel>
               <Select
@@ -487,7 +486,7 @@ const handleCrearReserva = async (datosReserva) => {
             </FormControl>
           </Grid>
 
-          <Grid size={{xs:12, sm:6, md:3}}>
+          <Grid size={{xs:12, sm:6, md:4}}>
             <FormControl fullWidth size="small">
               <InputLabel>Estado</InputLabel>
               <Select
@@ -503,6 +502,7 @@ const handleCrearReserva = async (datosReserva) => {
               </Select>
             </FormControl>
           </Grid>
+         
         </Grid>
       </Box>
 

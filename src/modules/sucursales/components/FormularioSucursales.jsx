@@ -127,7 +127,7 @@ const SucursalFormModal = ({
     >
       {/* Header con color primario */}
       <DialogTitle sx={{ 
-        backgroundColor: colors.primary.main, 
+        backgroundColor: colors.primary.dark, 
         color: colors.primary.contrastText,
         py: 2,
         position: 'relative',
@@ -143,8 +143,8 @@ const SucursalFormModal = ({
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar sx={{ 
-            bgcolor: colors.secondary.main, 
-            color: colors.primary.main,
+            bgcolor: 'white',
+            color: colors.primary.dark,
             width: 48,
             height: 48
           }}>
@@ -300,7 +300,7 @@ const SucursalFormModal = ({
           startIcon={<Cancel />}
           onClick={handleClose}
           disabled={loading}
-          variant="outlined"
+          variant="text"
           size="large"
           sx={{
             color: colors.accent.main,

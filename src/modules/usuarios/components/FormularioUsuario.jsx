@@ -34,7 +34,7 @@ import { validateUserForm } from '../../../utils/Validations';
 
 
 const colors = {
-  primary: '#588157',     
+  primary: '#486A47',     
   secondary: '#A3B18A',    
   accent: '#57300D',       
   background: '#F8F9FA',   
@@ -544,7 +544,7 @@ const UserFormModal = ({
           startIcon={<Cancel />}
           onClick={handleClose}
           disabled={loading}
-          variant="outlined"
+          variant="text"
           size="large"
           sx={{
             color: colors.accent,
@@ -567,7 +567,7 @@ const UserFormModal = ({
             minWidth: 120,
             backgroundColor: colors.primary,
             '&:hover': {
-              backgroundColor: colors.secondary,
+              backgroundColor: colors.primary.dark,
             }
           }}
         >

@@ -68,22 +68,6 @@ const CardClientes = ({ client }) => {
               </Typography>
             </Box>
           </Box>
-
-          <Button
-            variant="contained"
-            startIcon={<HistoryIcon />}
-            size="small"
-            sx={{
-              bgcolor: "#588157",
-              textTransform: "none",
-              fontWeight: 600,
-              "&:hover": {
-                bgcolor: "#466846"
-              }
-            }}
-          >
-            Ver historial
-          </Button>
         </Box>
 
         {/* Información de contacto */}
@@ -109,23 +93,6 @@ const CardClientes = ({ client }) => {
               {client.phone}
             </Typography>
           </Box>
-
-          <Button
-            variant="outlined"
-            startIcon={<EditIcon />}
-            size="small"
-            sx={{
-              color: "#57300D",
-              borderColor: "#57300D",
-              textTransform: "none",
-              "&:hover": {
-                bgcolor: "#57300D",
-                color: "white"
-              }
-            }}
-          >
-            Editar
-          </Button>
         </Box>
 
         <Divider sx={{ my: 3 }} />

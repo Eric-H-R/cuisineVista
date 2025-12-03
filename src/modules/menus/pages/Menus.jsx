@@ -7,7 +7,8 @@ import {
   Dialog,
   DialogTitle,
   Avatar,
-  CircularProgress
+  CircularProgress,
+  CardMedia,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 //import AddIcon from '@mui/icons-material/Add';
@@ -113,10 +114,11 @@ const Menus = () => {
       setEditLoading(true);
       const payload = {
         nombre: editValues.name.trim(),
-        descripcion: editValues.description.trim(),
-        es_activa: !!editValues.status
+        descripcion: editValues.description.trim(), 
       };
-      await MenuService.update(editingCategory.id, payload);
+        console.log('[Menus] update request', { editingId: editingCategory.id, payload });
+        const res = await MenuService.update(editingCategory.id, payload);
+        console.log('[Menus] update response', res && (res.data || res));
       // update local state
       setCategories(prev => prev.map(c => c.id === editingCategory.id ? { ...c, name: payload.nombre, description: payload.descripcion, status: payload.es_activa } : c));
       toast.success('Categoría actualizada');
@@ -196,7 +198,7 @@ const Menus = () => {
             Gestión de Menús
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
-            Administra productos, combos y categorías del menú
+            Administra categorías del menú
           </Typography>
         </Box>
 
@@ -232,10 +234,12 @@ const Menus = () => {
       ) : (
         <Box sx={{ mt: 3 }}>
           <Grid container spacing={2} >
-            {categories.map((category) => (
-              <Grid size={{xs: 12, md: 6, lg:4}} key={category.id}>
-                <CategoryCard 
+
+            {categories.map((category, index) => (
+              <Grid size={{ xs: 12, md: 6, lg: 4 }} key={category.id ?? index}>
+                <CategoryCard
                   category={category}
+                  imageNumber={index + 1}
                   onEdit={handleOpenEdit}
                   onToggle={(cat) => handleOpenEdit({ ...cat, status: !cat.status })}
                   onDelete={handleOpenDelete}

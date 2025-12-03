@@ -130,10 +130,10 @@ const CardAsignacion = ({ branch, onEdit, onDesactivate }) => {
             startIcon={<EditIcon />}
             size="small"
             sx={{
-              color: '#57300D',
-              borderColor: '#57300D',
+              color: '#486A47',
+              borderColor: '#486A47',
               '&:hover': {
-                backgroundColor: '#57300D',
+                backgroundColor: '#486A47',
                 color: 'white'
               }
             }}

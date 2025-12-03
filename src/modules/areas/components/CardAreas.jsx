@@ -36,6 +36,7 @@ import { toast } from "react-toastify";
 import ConfirmDialog from "../../../components/Common/ConfirmDialog";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import colores from "../../../theme/colores";
+import { Cancel } from '@mui/icons-material';
 
 // Hook personalizado para manejar la vista
 const useViewMode = () => {
@@ -308,9 +309,7 @@ const CardAreas = () => {
             alignItems: "center",
           }}
         >
-        
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Tooltip title="Editar">
               <Button
                 variant="outlined"
                 size="small"
@@ -327,11 +326,7 @@ const CardAreas = () => {
                 }}
               >
                 Editar
-              </Button>
-            </Tooltip>
-
-            <Tooltip title="Eliminar">
-             
+              </Button> 
                 <Button
         variant="outlined"
         size="small"
@@ -348,8 +343,7 @@ const CardAreas = () => {
       >
         Eliminar
       </Button>
-              
-            </Tooltip>
+
           </Box>
         </Box>
       </Card>
@@ -485,7 +479,6 @@ const CardAreas = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     borderBottom: '1px solid',
-                    borderColor: colores.primary.dark,
                     backgroundColor: colores.primary.dark,
                     color: 'white'
                 }}>
@@ -548,11 +541,12 @@ const CardAreas = () => {
                            
                             
                             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', pt: 2 }}>
-                                <Typography 
+                                <Typography
+                                
                                     variant="button" 
                                     onClick={handleCloseEdit}
                                     sx={{ 
-                                        color: 'text.secondary',
+                                        color: colores.accent.main,
                                         cursor: 'pointer',
                                         py: 1,
                                         px: 2,
@@ -562,6 +556,7 @@ const CardAreas = () => {
                                         }
                                     }}
                                 >
+                                <Cancel sx={{ mr: 1, fontSize: 18, verticalAlign: 'middle',  }} />
                                     Cancelar
                                 </Typography>
                                 

@@ -14,15 +14,8 @@ import { useAuth } from '../../../context/AuthContext';
 import AreasServices from '../services/AreasServices'; 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-const colors = {
-  primary: '#588157',     
-  secondary: '#A3B18A',    
-  accent: '#57300D',       
-  background: '#F8F9FA',   
-  paper: '#EDE0D4',        
-  text: '#333333'          
-};
+import colors from '../../../theme/colores';
+import { Cancel } from '@mui/icons-material';
 
 const BasicModal = ({ onAreaAdded }) => {
   const [open, setOpen] = React.useState(false);
@@ -143,7 +136,7 @@ const BasicModal = ({ onAreaAdded }) => {
         }}
       >
         <DialogTitle sx={{ 
-          backgroundColor: colors.primary, 
+          backgroundColor: colors.primary.dark, 
           color: 'white',
           py: 2,
           position: 'relative',
@@ -159,8 +152,8 @@ const BasicModal = ({ onAreaAdded }) => {
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Avatar sx={{ 
-              bgcolor: colors.secondary, 
-              color: colors.primary,
+              bgcolor: 'white', 
+              color: colors.primary.dark,
               width: 48,
               height: 48
             }}>
@@ -173,7 +166,7 @@ const BasicModal = ({ onAreaAdded }) => {
         </DialogTitle>
 
         {/* Formulario */}
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: 3 }}>
           <Box component="form" onSubmit={handleSubmit}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               
@@ -211,28 +204,22 @@ const BasicModal = ({ onAreaAdded }) => {
                 borderRadius: 1,
                 border: `1px solid ${colors.secondary}30`
               }}>
-                <Typography variant="body2" fontWeight="medium" color={colors.text}>
-                  Sucursal Asignada:
-                </Typography>
-                <Typography variant="body2" color={colors.text} sx={{ opacity: 0.8 }}>
-                  {sucursal ? `ID: ${sucursal}` : 'No hay sucursal seleccionada'}
-                </Typography>
               </Box>
               
               {/* Botones */}
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
-                <Button 
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end'}}>
+                <Button
+                startIcon={<Cancel />} 
                   type="button" 
-                  variant="outlined" 
+                  variant="text" 
                   color="inherit"
                   onClick={handleClose}
                   disabled={loading}
                   sx={{
-                    color: colors.text,
-                    borderColor: colors.secondary,
+                    color: colors.accent.main,
                     '&:hover': {
-                      borderColor: colors.primary,
-                      backgroundColor: `${colors.primary}10`
+                      borderColor: colors.primary.main,
+                      backgroundColor: colors.background.paper
                     }
                   }}
                 >
@@ -245,9 +232,9 @@ const BasicModal = ({ onAreaAdded }) => {
                   disabled={loading || !sucursal}
                   startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
                   sx={{
-                    backgroundColor: colors.primary,
+                    backgroundColor: colors.primary.main,
                     '&:hover': {
-                      backgroundColor: colors.accent
+                      backgroundColor: colors.primary.dark
                     },
                     '&:disabled': {
                       backgroundColor: `${colors.text}40`
@@ -268,10 +255,11 @@ const BasicModal = ({ onAreaAdded }) => {
         size="large"
         startIcon={<AddIcon/>}
         sx={{
-          backgroundColor: colors.primary,
+          backgroundColor: colors.primary.dark,
           color: 'white',
           '&:hover': {
-            backgroundColor: colors.accent
+            backgroundColor: colors.primary.dark,
+            boxShadow: '0 4px 20px rgba(72, 106, 71, 0.4)'
           }
         }}
       >

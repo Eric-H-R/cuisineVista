@@ -278,16 +278,19 @@ const CardMesas = () => {
 
   const handleDelete = async () => {
     if (!mesaToDelete) return;
-    setLoadingActions((prev) => ({ ...prev, [mesaToDelete]: true }));
+    // mesaToDelete may be the raw id (number) or an object in other contexts; normalize
+    const idToDelete = mesaToDelete?.id_mesa ?? mesaToDelete?.id ?? mesaToDelete;
+    setLoadingActions((prev) => ({ ...prev, [idToDelete]: true }));
     try {
-      await MesasService.delete(mesaToDelete);
-      setMesas((prev) => prev.filter((m) => m.id !== mesaToDelete));
+      await MesasService.delete(idToDelete);
+      // remove by id_mesa or id
+      setMesas((prev) => prev.filter((m) => (m.id_mesa ?? m.id) !== idToDelete));
       toast.success("Mesa eliminada correctamente");
     } catch (error) {
       console.error("Error eliminando mesa:", error);
       toast.error("Error eliminando la mesa");
     } finally {
-      setLoadingActions((prev) => ({ ...prev, [mesaToDelete]: false }));
+      setLoadingActions((prev) => ({ ...prev, [idToDelete]: false }));
       handleCloseDeleteDialog();
     }
   };

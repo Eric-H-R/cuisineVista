@@ -13,7 +13,8 @@ import {
 } from '@mui/material';
 import {
   Close as CloseIcon,
-  AccessTime as TimeIcon
+  AccessTime as TimeIcon,
+  Cancel 
 } from '@mui/icons-material';
 import colors from '../../../theme/colores';
 
@@ -61,13 +62,13 @@ const ModalComenzarReserva = ({ open, onClose, onGuardarReserva }) => {
       }}
     >
       <DialogTitle sx={{ 
-        bgcolor: colors.primary.main,
+        bgcolor: colors.primary.dark,
         color: colors.primary.contrastText,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, }}>
           <TimeIcon />
           <Typography variant="h6" component="div" fontWeight="bold">
             Comenzar Reserva
@@ -81,7 +82,7 @@ const ModalComenzarReserva = ({ open, onClose, onGuardarReserva }) => {
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ py: 3 }}>
+      <DialogContent sx={{ py: 3, mt:3 }}>
         <Grid container spacing={3}>
           <Grid size={12}>
             <TextField
@@ -152,17 +153,18 @@ const ModalComenzarReserva = ({ open, onClose, onGuardarReserva }) => {
       <DialogActions sx={{ 
         px: 3, 
         py: 2,
-        bgcolor: colors.background.paper,
         borderTop: `1px solid ${colors.border.light}`
       }}>
         <Button
+          startIcon={<Cancel />}
           onClick={handleClose}
           sx={{
-            color: colors.text.secondary,
+            color: colors.accent.main,
             borderColor: colors.border.main,
             '&:hover': {
-              borderColor: colors.primary.main,
-              color: colors.primary.main
+              borderColor: colors.accent.main,
+              color: colors.accent.dark,
+              bgcolor: colors.background.paper
             }
           }}
         >
@@ -174,8 +176,8 @@ const ModalComenzarReserva = ({ open, onClose, onGuardarReserva }) => {
           disabled={!duracion || duracion <= 0}
           sx={{
             bgcolor: colors.primary.main,
-            color: colors.primary.contrastText,
-            px: 4,
+            color: 'white',
+            px: 2,
             '&:hover': {
               bgcolor: colors.primary.dark
             },
