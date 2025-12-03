@@ -226,8 +226,8 @@ const Auditoria = () => {
                 <TableCell>Entidad</TableCell>
                 <TableCell>Origen</TableCell>
                 <TableCell>Fecha</TableCell>
-                <TableCell>Descripción</TableCell>
-                <TableCell>Acciones</TableCell>
+
+              
               </TableRow>
             </TableHead>
             <TableBody>
@@ -240,11 +240,7 @@ const Auditoria = () => {
                   <TableCell>{row.origen || ''}</TableCell>
                   <TableCell>{row.created_at || row.fecha || ''}</TableCell>
                   <TableCell style={{ maxWidth: 300, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.descripcion || row.data || ''}</TableCell>
-                  <TableCell>
-                    <IconButton size="small" title="Ver detalle" onClick={() => openDetails(row)}>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </TableCell>
+                  
                 </TableRow>
               ))}
             </TableBody>

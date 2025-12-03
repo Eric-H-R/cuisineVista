@@ -694,14 +694,14 @@ const procesarPago = async () => {
                           color={Colores.accent.dark}
                           sx={{ fontFamily: '"Playfair Display", serif' }}
                         >
-                          <Typography variant="h4" color="primary" sx={{ fontFamily: '"Playfair Display", serif' }}>
+                          <Typography variant="h4"  sx={{ fontFamily: '"Playfair Display", serif', color: Colores.primary.dark, fontWeight: 'bold' }}>
                             {formatCurrency(pedidoSeleccionado.total - descuentoAplicado)}
                           </Typography>
                         </Typography>
                         {descuentoAplicado > 0 && (
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1 }}>
                               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Typography variant="caption" color="text.secondary">
+                                <Typography variant="caption" sx={{color: Colores.primary.dark}}>
                                   Subtotal:
                                 </Typography>
                                 <Typography variant="caption">

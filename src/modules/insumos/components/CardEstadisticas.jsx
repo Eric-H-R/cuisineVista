@@ -7,13 +7,14 @@ import {
   Grid
 } from '@mui/material';
 import PropTypes from 'prop-types';
+import colores from '../../../theme/colores';
 
 const CardEstadisticas = ({ cardsData }) => {
   return (
     
      <Grid container item  spacing={2} sx={{ mb: 4 }}>
       {cardsData.map((card, index) => {
-        const numberColors = ['#2E7D32', '#1976D2', '#7B1FA2', '#D32F2F'];
+        const numberColors = [colores.primary.dark, colores.primary.dark, colores.primary.dark];
         
         return (
           <Grid item size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
