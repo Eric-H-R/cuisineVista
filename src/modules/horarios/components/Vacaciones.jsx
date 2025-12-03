@@ -131,9 +131,9 @@ const Vacaciones = () => {
         <TextField label="Sucursal ID" disabled size="small" value={sucursalId} onChange={(e) => setSucursalId(e.target.value)} />
         <Select size="small" value={estatus} onChange={(e) => setEstatus(e.target.value)} displayEmpty sx={{ minWidth: 280 }}>
           <MenuItem value="">Todos los estatus</MenuItem>
-          <MenuItem value={"1"}>Pendiente (1)</MenuItem>
-          <MenuItem value={"2"}>Aprobada (2)</MenuItem>
-          <MenuItem value={"3"}>Rechazada (3)</MenuItem>
+          <MenuItem value={"1"}>Pendiente </MenuItem>
+          <MenuItem value={"2"}>Aprobada </MenuItem>
+          <MenuItem value={"3"}>Rechazada </MenuItem>
         </Select>
       </Box>
 

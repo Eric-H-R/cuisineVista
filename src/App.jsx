@@ -37,6 +37,7 @@ const Recepcion = lazy(() => import("./modules/recepciones/pages/Recepcion"));
 const Productos = lazy(() => import("./modules/productos/pages/Productos"));
 const Campanias = lazy(() => import("./modules/crm/pages/Campanias"))
 const Dashboard = lazy(() => import("./modules/dashboard//pages/Dashboard"))
+const Buzon = lazy(() => import("./modules/buzon/pages/Buzon"));
 // Loader básico
 const Loader = () => (
   <LoadingComponent message="Cargando..." overlay />
@@ -64,10 +65,10 @@ const App = () => {
       const data = ev.data;
       if (!data) return;
       if (data.type === 'OFFLINE_REQUEST_SAVED') {
-        toast.info(`Guardado offline: ${data.url}`);
+        toast.info('Guardado offline. Se enviará cuando regrese la conexión.');
       }
       if (data.type === 'OFFLINE_REQUEST_SENT') {
-        toast.success(`Petición offline enviada: ${data.url}`);
+        toast.success('Petición offline enviada.');
       }
       if (data.type === 'OFFLINE_QUEUE_EMPTY') {
         toast.info('Todas las peticiones offline fueron enviadas.');
@@ -103,6 +104,7 @@ const App = () => {
                 <Route path="/cocina" element={<Cocina />} />
                 <Route path="/cuenta" element={<Cuenta />}></Route>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/buzon-mejoras" element={<Buzon />} />
                 <Route path="/ordenes" element={<Ordenes />} />
                 <Route path="/combos" element={<Combos />} />
                 <Route path="/areas" element={<Areas />} />
