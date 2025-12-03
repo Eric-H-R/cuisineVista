@@ -47,7 +47,6 @@ const Topbar = ({ handleDrawerToggle }) => {
     suc => suc.id_sucursal === parseInt(sucursal)
     
   );
-  console.log("Sucursal actual:", sucursalActual);
 
   useEffect(() => {
     const fetchSucursales = async () => {
@@ -104,10 +103,11 @@ const Topbar = ({ handleDrawerToggle }) => {
         {/* Select de sucursales solo para ADMIN */}
         {userId === 1 && Array.isArray(sucursales) && sucursales.length > 0 && (
           <Box sx={{ mr: 2 }}>
-    <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+    <FormControl sx={{ m: 1, minWidth: 120 }} variant="standard" size="small">
       <Select
         value={sucursal || ""}
         onChange={handleChangeSucursal}
+        
         displayEmpty
         inputProps={{ 'aria-label': 'Seleccionar sucursal' }}
       >
