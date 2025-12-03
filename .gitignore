@@ -25,3 +25,6 @@ dev-dist
 *.sw?
 
 .env
+
+# Local Netlify folder
+.netlify

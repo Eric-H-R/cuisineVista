@@ -10,15 +10,9 @@ import { useAuth } from '../../../context/AuthContext';
 import MesasService from '../services/MesasService';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import colors from '../../../theme/colores';
 
-const colors = {
-  primary: '#588157',
-  secondary: '#A3B18A',
-  accent: '#57300D',
-  background: '#F8F9FA',
-  paper: '#EDE0D4',
-  text: '#333333'
-};
+
 
 const FormsMesas = ({ selectedMesa = null, onMesaAdded, onMesaUpdated, onMesaDeleted }) => {
   const { sucursal } = useAuth();
@@ -149,7 +143,7 @@ const FormsMesas = ({ selectedMesa = null, onMesaAdded, onMesaUpdated, onMesaDel
           onClick={() => setOpenAdd(true)}
           variant="contained"
           startIcon={<AddIcon />}
-          sx={{ backgroundColor: colors.primary }}
+          sx={{ backgroundColor: colors.primary.dark }}
         >
           Agregar Mesa
         </Button>
@@ -157,7 +151,7 @@ const FormsMesas = ({ selectedMesa = null, onMesaAdded, onMesaUpdated, onMesaDel
 
       {/* Add Modal */}
       <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ backgroundColor: colors.primary, color: 'white' }}>Agregar Nueva Mesa</DialogTitle>
+        <DialogTitle sx={{ backgroundColor: colors.primary.dark, color: 'white' }}>Agregar Nueva Mesa</DialogTitle>
         <Box component="form" onSubmit={handleAddSubmit} sx={{ p: 3 }}>
           <FormControl fullWidth sx={{ mb: 2 }} size="small">
             <InputLabel id="area-select-label">Área</InputLabel>
@@ -176,8 +170,8 @@ const FormsMesas = ({ selectedMesa = null, onMesaAdded, onMesaUpdated, onMesaDel
           </FormControl>
           <TextField name="capacidad" label="Capacidad" fullWidth type="number" value={nuevaMesa.capacidad} onChange={handleInputChange(setNuevaMesa)} sx={{ mb: 2 }} />
           <DialogActions>
-            <Button onClick={() => setOpenAdd(false)}>Cancelar</Button>
-            <Button type="submit" variant="contained" disabled={loadingAdd} startIcon={loadingAdd ? <CircularProgress size={18} /> : null}>
+            <Button onClick={() => setOpenAdd(false)} sx={{color: colors.accent.dark, '&:hover': { backgroundColor: colors.background.paper }}}>Cancelar</Button>
+            <Button sx={{backgroundColor: colors.primary.dark}} type="submit" variant="contained" disabled={loadingAdd} startIcon={loadingAdd ? <CircularProgress size={18} /> : null}>
               {loadingAdd ? 'Guardando...' : 'Guardar'}
             </Button>
           </DialogActions>
